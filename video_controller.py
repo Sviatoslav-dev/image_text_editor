@@ -15,7 +15,7 @@ class VideoController:
 
         self.video_model = VideoModel()
         self.setup_camera(self.video_model.fps)
-        self.window.quit_button.clicked.connect(self.close_win)
+        # self.window.quit_button.clicked.connect(self.close_win)
         self.window.slider.valueChanged.connect(self.seek_video)
         QtCore.QObject.connect(
             self.window.play_pause_button, QtCore.SIGNAL("clicked()"), self.play_pause)
@@ -31,12 +31,11 @@ class VideoController:
 
     def display_video_stream(self):
         ret, frame = self.video_model.video_capture.read()
-        print(self.video_model.video_capture.get(cv2.CAP_PROP_POS_MSEC))
-        print(self.video_model.video_capture.get(cv2.CAP_PROP_POS_AVI_RATIO))
+        # print(self.video_model.video_capture.get(cv2.CAP_PROP_POS_MSEC))
+        # print(self.video_model.video_capture.get(cv2.CAP_PROP_POS_AVI_RATIO))
         current_frame = self.video_model.get_current_frame()
         self.window.slider.setValue(current_frame)
 
-        print(ret)
         if not ret:
             return False
 
@@ -46,8 +45,8 @@ class VideoController:
             y = int(self.change_size(480, height, self.scene.rect.rect().y()))
             rect_weight = int(self.change_size(640, width, self.scene.rect.rect().width()))
             rect_height = int(self.change_size(480, height, self.scene.rect.rect().height()))
-            frame = self.video_model.replace_text(
-                self.scene.text, x, y, rect_weight, rect_height, frame)
+            # frame = self.video_model.replace_text(
+            #     self.scene.text, x, y, rect_weight, rect_height, frame)
 
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -91,8 +90,8 @@ class VideoController:
                 image = qimage2ndarray.array2qimage(frame)
                 self.window.frame_label.setPixmap(QtGui.QPixmap.fromImage(image))
 
-    def close_win(self):
-        self.video_model.video_capture.release()
-        cv2.destroyAllWindows()
-        self.window.close()
+    # def close_win(self):
+    #     self.video_model.video_capture.release()
+    #     cv2.destroyAllWindows()
+    #     self.window.close()
 

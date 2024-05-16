@@ -6,7 +6,7 @@ from PyQt5.QtCore import QThread, pyqtSignal, QPoint
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QGraphicsScene, QGraphicsView
 
-from design import Ui_Form
+from drafts.design import Ui_Form
 
 
 class PhotoScene(QGraphicsScene):
