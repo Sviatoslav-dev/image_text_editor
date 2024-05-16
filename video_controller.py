@@ -30,7 +30,7 @@ class VideoController:
         self.window.frame_timer.start(int(1000 // fps))
 
     def display_video_stream(self):
-        ret, frame = self.video_model.video_capture.read()
+        ret, frame = self.video_model.next_frame()
         # print(self.video_model.video_capture.get(cv2.CAP_PROP_POS_MSEC))
         # print(self.video_model.video_capture.get(cv2.CAP_PROP_POS_AVI_RATIO))
         current_frame = self.video_model.get_current_frame()
@@ -81,7 +81,7 @@ class VideoController:
             frame_number = self.window.slider.value()
             self.video_model.set_frame_number(frame_number)
             if self.pause and self.first_stop:
-                ret, frame = self.video_model.video_capture.read()
+                ret, frame = self.video_model.next_frame()
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
                 frame = cv2.resize(frame, (self.window.video_size.width(), self.window.video_size.height()),

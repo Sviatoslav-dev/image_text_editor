@@ -12,6 +12,18 @@ class VideoModel(BaseImageModel):
         fps = 30
         self.setup_camera(fps)
         self.fps = fps
+        self.frame_num = 0
+        self.frames = []
+        self.frames_count = self.get_frames_count()
+        self.read_all_frames()
+
+    def read_all_frames(self):
+        self.frames = []
+        while True:
+            ret, frame = self.video_capture.read()
+            if not ret:
+                break
+            self.frames.append(frame)
 
     def setup_camera(self, fps):
         path = "data/video_with_text2.mp4"
@@ -38,7 +50,20 @@ class VideoModel(BaseImageModel):
         return int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
 
     def get_current_frame(self):
-        return int(self.video_capture.get(cv2.CAP_PROP_POS_FRAMES))
+        # return int(self.video_capture.get(cv2.CAP_PROP_POS_FRAMES))
+        return self.frame_num
 
     def set_frame_number(self, frame_number):
-        self.video_capture.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+        # self.video_capture.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+        self.frame_num = frame_number
+
+    def next_frame(self):
+        # return self.video_capture.read()
+        try:
+            frame = self.frames[self.frame_num]
+            ret = True
+            self.frame_num += 1
+        except IndexError:
+            ret = False
+            frame = self.frames[-1]
+        return ret, frame
