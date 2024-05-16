@@ -79,7 +79,7 @@ class BaseImageModel:
         return img
 
     def get_box_height(self, box):
-        return int((box[1][3][1] - box[1][0][1]) * 0.8)
+        return int((box[1][3][1] - box[1][0][1]))  # * 0.8)
 
     def _segmentate_text(self, image):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
