@@ -2,6 +2,7 @@ import sys
 
 from PySide2 import QtCore, QtWidgets
 from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QAction
 
 from editor_window import EditorWindow
 from video_controller import VideoController
@@ -32,7 +33,30 @@ class VideoPlayer(EditorWindow):
         # self.video_layout.addWidget(self.slider, 3, 0)
 
         self.setup_ui()
-        # self.tracker = None
+
+        self.replace_action = QAction("Replace text", self)
+        self.replace_action.setCheckable(True)
+        self.replace_action.setChecked(True)
+        self.remove_action = QAction("Remove text", self)
+        self.remove_action.setCheckable(True)
+        self.copy_action = QAction("Copy text", self)
+        self.copy_action.setCheckable(True)
+        self.find_action = QAction("Find text", self)
+        self.save_action = QAction("Save", self)
+
+        self.tools_group.addAction(self.replace_action)
+        self.tools_group.addAction(self.remove_action)
+        self.tools_group.addAction(self.copy_action)
+
+        self.toolbar.addAction(self.replace_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.remove_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.copy_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.find_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.save_action)
 
     def setup_ui(self):
         self.video_layout.addWidget(self.play_pause_button, 1, 1, 1, 1)

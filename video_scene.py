@@ -3,14 +3,13 @@ from PySide2.QtWidgets import QDialog, QVBoxLayout, QLineEdit
 
 
 class VideoScene(QtWidgets.QGraphicsScene):
-    text = ""
 
     def __init__(self, parent=None):
         super(VideoScene, self).__init__(parent)
 
         self.rect = self.addRect(0, 0, 0, 0)
         self.pause = False
-        self.replace_text = lambda: None
+        self.update_video = lambda: None
 
     def mousePressEvent(self, event):
         if self.pause:
@@ -28,17 +27,5 @@ class VideoScene(QtWidgets.QGraphicsScene):
             )
 
     def mouseReleaseEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
-        dialog = QDialog(self.parent())
-        dialog_layout = QVBoxLayout()
-        top_line_edit = QLineEdit(parent=dialog)
-        dialog_layout.addWidget(top_line_edit)
-
-        def on_enter():
-            self.text = top_line_edit.text()
-            dialog.done(1)
-
-        top_line_edit.editingFinished.connect(on_enter)
-        dialog.setLayout(dialog_layout)
-        dialog.exec_()
-        self.replace_text()
+        self.update_video()
         self.rect.setRect(0, 0, 0, 0)
