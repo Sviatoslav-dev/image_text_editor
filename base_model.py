@@ -60,8 +60,8 @@ class BaseImageModel:
         return img_inpainted
 
     def draw_text(self, image, text, x, y, h, color=(255, 255, 255), font="Arial"):
-        print("xy", x, y)
-        print("h = ", h)
+        # print("xy", x, y)
+        # print("h = ", h)
         # thickness = 2
         # text_scale = cv2.getFontScaleFromHeight(cv2.FONT_HERSHEY_SIMPLEX, h, thickness)
         # return cv2.putText(
@@ -69,6 +69,7 @@ class BaseImageModel:
         #     text_scale, (255, 255, 255), thickness, cv2.LINE_AA,
         # )
 
+        print(text, x, y, h, color, font)
         fontpath = f"data/fonts/{font}.ttf"
         font = ImageFont.truetype(fontpath, int(h * 1.3))
         img_pil = Image.fromarray(image)

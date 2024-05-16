@@ -1,6 +1,7 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtWidgets import QDialog, QVBoxLayout, QLineEdit
 
+
 class VideoScene(QtWidgets.QGraphicsScene):
     text = ""
 
@@ -9,6 +10,7 @@ class VideoScene(QtWidgets.QGraphicsScene):
 
         self.rect = self.addRect(0, 0, 0, 0)
         self.pause = False
+        self.replace_text = lambda: None
 
     def mousePressEvent(self, event):
         if self.pause:
@@ -38,3 +40,5 @@ class VideoScene(QtWidgets.QGraphicsScene):
         top_line_edit.editingFinished.connect(on_enter)
         dialog.setLayout(dialog_layout)
         dialog.exec_()
+        self.replace_text()
+        self.rect.setRect(0, 0, 0, 0)

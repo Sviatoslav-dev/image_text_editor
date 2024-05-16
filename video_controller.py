@@ -1,6 +1,6 @@
 import cv2
 import qimage2ndarray
-from PySide2 import QtGui, QtCore
+from PySide2 import QtGui, QtCore, QtWidgets
 
 from video_model import VideoModel
 
@@ -19,6 +19,7 @@ class VideoController:
         self.window.slider.valueChanged.connect(self.seek_video)
         QtCore.QObject.connect(
             self.window.play_pause_button, QtCore.SIGNAL("clicked()"), self.play_pause)
+        self.scene.replace_text = self.replace_text
 
         # self.window.show()
 
@@ -33,27 +34,27 @@ class VideoController:
         ret, frame = self.video_model.next_frame()
         # print(self.video_model.video_capture.get(cv2.CAP_PROP_POS_MSEC))
         # print(self.video_model.video_capture.get(cv2.CAP_PROP_POS_AVI_RATIO))
-        current_frame = self.video_model.get_current_frame()
+        current_frame = self.video_model.get_current_frame_num()
         self.window.slider.setValue(current_frame)
 
         if not ret:
             return False
 
-        if self.first_stop:
-            height, width = frame.shape[:2]
-            x = int(self.change_size(640, width, self.scene.rect.rect().x()))
-            y = int(self.change_size(480, height, self.scene.rect.rect().y()))
-            rect_weight = int(self.change_size(640, width, self.scene.rect.rect().width()))
-            rect_height = int(self.change_size(480, height, self.scene.rect.rect().height()))
-            # frame = self.video_model.replace_text(
-            #     self.scene.text, x, y, rect_weight, rect_height, frame)
+        # if self.first_stop:
+        #     height, width = frame.shape[:2]
+        #     x = int(self.change_size(640, width, self.scene.rect.rect().x()))
+        #     y = int(self.change_size(480, height, self.scene.rect.rect().y()))
+        #     rect_weight = int(self.change_size(640, width, self.scene.rect.rect().width()))
+        #     rect_height = int(self.change_size(480, height, self.scene.rect.rect().height()))
+            # self.video_model.replace_text(self.scene.text, x, y, rect_weight, rect_height)
 
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        frame = cv2.resize(frame, (self.window.video_size.width(), self.window.video_size.height()),
+        new_frame = cv2.resize(frame, (self.window.video_size.width(), self.window.video_size.height()),
                            interpolation=cv2.INTER_AREA)
 
-        image = qimage2ndarray.array2qimage(frame)
+        print("pppp: ", frame.shape, new_frame.shape)
+        image = qimage2ndarray.array2qimage(new_frame)
         self.window.frame_label.setPixmap(QtGui.QPixmap.fromImage(image))
 
         if not self.first_stop:
@@ -89,6 +90,28 @@ class VideoController:
 
                 image = qimage2ndarray.array2qimage(frame)
                 self.window.frame_label.setPixmap(QtGui.QPixmap.fromImage(image))
+
+    def replace_text(self):
+        current_frame = self.video_model.get_current_frame()
+        height, width = current_frame.shape[:2]
+        print(height, width)
+        self.window.frame_label: QtWidgets.QGraphicsPixmapItem
+        print("shshsh: ", self.window.frame_label.pixmap().width())
+        print("shshsh: ", self.window.frame_label.pixmap().height())
+        print(self.scene.rect.rect())
+        x = int(self.change_size(640, width, self.scene.rect.rect().x()))
+        y = int(self.change_size(480, height, self.scene.rect.rect().y()))
+        rect_weight = int(self.change_size(640, width, self.scene.rect.rect().width()))
+        rect_height = int(self.change_size(480, height, self.scene.rect.rect().height()))
+        print(x, y, rect_weight, rect_height)
+        self.video_model.replace_text(self.scene.text, x, y, rect_weight, rect_height)
+
+        frame = cv2.cvtColor(current_frame, cv2.COLOR_BGR2RGB)
+
+        frame = cv2.resize(frame, (self.window.video_size.width(), self.window.video_size.height()),
+                           interpolation=cv2.INTER_AREA)
+        image = qimage2ndarray.array2qimage(frame)
+        self.window.frame_label.setPixmap(QtGui.QPixmap.fromImage(image))
 
     # def close_win(self):
     #     self.video_model.video_capture.release()
