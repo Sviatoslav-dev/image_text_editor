@@ -1,5 +1,7 @@
 import sys
 
+import PySide2
+from PySide2 import QtCore
 from PySide2.QtCore import QSize, QCoreApplication
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
@@ -46,25 +48,6 @@ class EditorWindow(QWidget):
         self.hbox5.setContentsMargins(200, -1, 200, -1)
         self.hbox5.setSpacing(100)
         self.hbox5.setObjectName("hbox5")
-        self.pushButton = QPushButton(self)
-        font = QFont()
-        font.setPointSize(14)
-        font.setBold(True)
-        font.setWeight(75)
-        self.pushButton.setFont(font)
-        self.pushButton.setObjectName("pushButton")
-        self.hbox5.addWidget(self.pushButton)
-        spacerItem = QSpacerItem(140, 20, QSizePolicy.Fixed,
-                                 QSizePolicy.Minimum)
-        self.hbox5.addItem(spacerItem)
-        self.pushButton_2 = QPushButton(self)
-        font = QFont()
-        font.setPointSize(14)
-        font.setBold(True)
-        font.setWeight(75)
-        self.pushButton_2.setFont(font)
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.hbox5.addWidget(self.pushButton_2)
         self.vbox1.addLayout(self.hbox5)
         self.hbox.addLayout(self.vbox1)
         self.vbox = QVBoxLayout()
@@ -82,56 +65,6 @@ class EditorWindow(QWidget):
         self.vbox3 = QVBoxLayout()
         self.vbox3.setSpacing(120)
         self.vbox3.setObjectName("vbox3")
-        self.filter_btn = QPushButton(self.base_frame)
-        sizePolicy = QSizePolicy(QSizePolicy.Maximum,
-                                 QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.filter_btn.sizePolicy().hasHeightForWidth())
-        self.filter_btn.setSizePolicy(sizePolicy)
-        self.filter_btn.setMinimumSize(QSize(0, 0))
-        self.filter_btn.setMaximumSize(QSize(800, 60))
-        font = QFont()
-        font.setFamily("Neue Haas Grotesk Text Pro")
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.filter_btn.setFont(font)
-        self.filter_btn.setObjectName("filter_btn")
-        self.vbox3.addWidget(self.filter_btn)
-        self.adjust_btn = QPushButton(self.base_frame)
-        self.adjust_btn.setMaximumSize(QSize(16777215, 60))
-        font = QFont()
-        font.setFamily("Neue Haas Grotesk Text Pro")
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.adjust_btn.setFont(font)
-        self.adjust_btn.setObjectName("adjust_btn")
-        self.vbox3.addWidget(self.adjust_btn)
-        self.ai_btn = QPushButton(self.base_frame)
-        self.ai_btn.setMaximumSize(QSize(16777215, 60))
-        font = QFont()
-        font.setFamily("Neue Haas Grotesk Text Pro")
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.ai_btn.setFont(font)
-        self.ai_btn.setObjectName("ai_btn")
-        self.vbox3.addWidget(self.ai_btn)
-        spacerItem1 = QSpacerItem(0, 100, QSizePolicy.Minimum,
-                                  QSizePolicy.Fixed)
-        self.vbox3.addItem(spacerItem1)
-        self.save_btn = QPushButton(self.base_frame)
-        self.save_btn.setMaximumSize(QSize(16777215, 60))
-        font = QFont()
-        font.setFamily("Neue Haas Grotesk Text Pro")
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.save_btn.setFont(font)
-        self.save_btn.setObjectName("save_btn")
-        self.vbox3.addWidget(self.save_btn)
         self.verticalLayout_4.addLayout(self.vbox3)
         self.vbox.addWidget(self.base_frame)
         self.hbox.addLayout(self.vbox)
@@ -143,15 +76,28 @@ class EditorWindow(QWidget):
             QIcon("C:/Users/slavi/PycharmProjects/image_text_editor/data/icon/icon.png"))
         self.move(120, 100)
 
+
+        self.toolbar = QToolBar()
+        self.toolbar.setOrientation(PySide2.QtCore.Qt.Orientation.Vertical)
+        self.toolbar.setStyleSheet("""
+                   QToolBar {
+                       spacing: 10px;
+                   }
+                   QToolButton {
+                       font-size: 18px;
+                       padding: 10px;
+                       min-width: 80px;
+                       min-height: 40px;
+                   }
+               """)
+        self.vbox3.addWidget(self.toolbar)
+
+        self.tools_group = QActionGroup(self)
+        self.tools_group.setExclusive(True)
+
     def retranslateUi(self):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("Editor", "Editor"))
-        self.pushButton.setText(_translate("Editor", "<<"))
-        self.pushButton_2.setText(_translate("Editor", ">>"))
-        self.filter_btn.setText(_translate("Editor", "          Filter          "))
-        self.adjust_btn.setText(_translate("Editor", "          Adjust          "))
-        self.ai_btn.setText(_translate("Editor", "AI"))
-        self.save_btn.setText(_translate("Editor", "Save"))
 
 
 if __name__ == "__main__":

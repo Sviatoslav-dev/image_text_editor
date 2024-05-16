@@ -1,11 +1,8 @@
 import sys
 
-from PySide2.QtCore import QSize, QCoreApplication
-from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 from editor_window import EditorWindow
-from photo_controller import PhotoController
 from photo_scene import PhotoScene
 
 
@@ -27,6 +24,27 @@ class Main(EditorWindow):
         self.scene.rect = self.scene.addRect(0, 0, 0, 0)
         self.gv.setScene(self.scene)
 
+        self.replace_action = QAction("Replace text", self)
+        self.replace_action.setCheckable(True)
+        self.replace_action.setChecked(True)
+        self.remove_action = QAction("Remove text", self)
+        self.remove_action.setCheckable(True)
+        self.copy_action = QAction("Copy text", self)
+        self.copy_action.setCheckable(True)
+        self.save_action = QAction("Save", self)
+
+        self.tools_group.addAction(self.replace_action)
+        self.tools_group.addAction(self.remove_action)
+        self.tools_group.addAction(self.copy_action)
+
+        self.toolbar.addAction(self.replace_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.remove_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.copy_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.save_action)
+
 
     def click_save(self):
         try:
@@ -44,9 +62,5 @@ if __name__ == "__main__":
     # window = Main(["C:/Users/slavi/PycharmProjects/image_text_editor/ui/landscape.jpg"])
     # window = Main(["C:/Users/slavi/PycharmProjects/image_text_editor/ui/landscape.jpg"])
     window = Main()
-    # window.show()
-    controller = PhotoController(
-        window,
-        "C:/Users/slavi/PycharmProjects/image_text_editor/data/img_5.png",
-    )
+    window.show()
     app.exec_()

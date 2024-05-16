@@ -1,6 +1,7 @@
 import cv2
 
 from base_model import BaseImageModel
+import pyperclip
 
 
 class PhotoModel(BaseImageModel):
@@ -39,3 +40,18 @@ class PhotoModel(BaseImageModel):
             self.get_box_height(predictions[0][0]), color=color, font=font,
         )
         self.img[y:y + height, x:x + weight] = img_part
+
+    def remove_text(self, x, y, weight, height):
+        img_part = self.img[y:y + height, x:x + weight]
+        predictions = self.find_text(img_part)
+        img_part = self.clear_text(img_part, predictions[0])
+        self.img[y:y + height, x:x + weight] = img_part
+
+    def copy_text(self, x, y, weight, height):
+        img_part = self.img[y:y + height, x:x + weight]
+        predictions = self.find_text(img_part)
+        text = ""
+        for prediction in predictions[0]:
+            text += " " + prediction[0]
+        pyperclip.copy(text)
+        print(predictions)
