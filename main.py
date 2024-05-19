@@ -14,6 +14,6 @@ if __name__ == "__main__":
     # window.show()
     controller = PhotoController(
         window,
-        "C:/Users/slavi/PycharmProjects/image_text_editor/data/img_5.png",
+        "data/img_7.png",
     )
     app.exec_()

@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 
-# Завантаження моделі EAST
 net = cv2.dnn.readNet('frozen_east_text_detection.pb')
 
 
@@ -49,23 +48,19 @@ def highlight_text(frame):
     rW = origW / float(newW)
     rH = origH / float(newH)
 
-    # Підготовка зображення для детектування
     blob = cv2.dnn.blobFromImage(frame, 1.0, (newW, newH), (123.68, 116.78, 103.94), swapRB=True,
                                  crop=False)
     net.setInput(blob)
 
-    # Передбачення за допомогою моделі EAST
     scores, geometry = net.forward(['feature_fusion/Conv_7/Sigmoid', 'feature_fusion/concat_3'])
 
     boxes, confidences = decode_predictions(scores, geometry)
     indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
     detected_boxes = [boxes[i] for i in indices] if len(indices) > 0 else []
 
-    # Масштабування координат до оригінального зображення
     scaled_boxes = [(int(x * rW), int(y * rH), int(w * rW), int(h * rH)) for (x, y, w, h) in
                     detected_boxes]
 
-    # Виділення тексту на кадрі
     for x, y, w, h in scaled_boxes:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 

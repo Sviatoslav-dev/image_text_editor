@@ -11,11 +11,11 @@ np.random.seed(seed)
 BASEDIR = "."
 
 # Input
-PICKLE_DIR = os.path.join(BASEDIR, "../font_from_image_main/pickles")
+PICKLE_DIR = os.path.join(BASEDIR, "../font_predictions/pickles")
 DATAFILE = os.path.join(PICKLE_DIR, 'font.pickle')
 
 # Output
-MODEL_DIR = os.path.join(BASEDIR, "../font_from_image_main/saved_models")
+MODEL_DIR = os.path.join(BASEDIR, "../font_predictions/saved_models")
 # model_name = os.path.join(MODEL_DIR, "font.model.01.h5")
 model_name = os.path.join(MODEL_DIR, "font.model.01.keras")
 

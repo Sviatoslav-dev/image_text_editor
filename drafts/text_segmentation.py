@@ -7,11 +7,14 @@ def segmentate_text(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)  # Застосування розмиття для зменшення шуму
     adaptive_thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                            cv2.THRESH_BINARY_INV, 11, 2)
+                                            cv2.THRESH_BINARY_INV, 3, 2)
+    cv2.imshow('adaptive_thresh', adaptive_thresh)
 
-    # Морфологічні операції для з'єднання компонентів тексту
+    # # Морфологічні операції для з'єднання компонентів тексту
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
     connected_text = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_CLOSE, kernel)
+
+    cv2.imshow('connected_text', connected_text)
 
     # Виявлення контурів
     contours, _ = cv2.findContours(connected_text, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -19,8 +22,8 @@ def segmentate_text(image):
 
     # Заповнення маски білим кольором в місцях, де виявлено текст
     cv2.drawContours(text_mask, contours, -1, (255), thickness=cv2.FILLED)
-    mask = text_mask - connected_text
-    return mask
+    # mask = text_mask - connected_text
+    return text_mask
 
 
 def get_mean_color(image):
@@ -51,4 +54,4 @@ if __name__ == "__main__":
 
 
     # Виклик функції з шляхом до вашого зображення
-    create_full_text_mask('../data/img_2.png')
+    create_full_text_mask('../data/img_6.png')

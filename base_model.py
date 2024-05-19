@@ -6,8 +6,9 @@ import keras_ocr
 import numpy as np
 from keras.models import load_model
 
-from font_from_image_main.fonts import fonts
 from PIL import ImageFont, Image, ImageDraw
+
+from font_predictions.fonts import fonts
 
 
 class BaseImageModel:
@@ -15,7 +16,7 @@ class BaseImageModel:
         self.pipeline = keras_ocr.pipeline.Pipeline()
 
         BASEDIR = "."
-        MODEL_DIR = os.path.join(BASEDIR, "font_from_image_main/saved_models")
+        MODEL_DIR = os.path.join(BASEDIR, "font_predictions/saved_models")
 
         model_name = os.path.join(MODEL_DIR, "font.model.02.keras")
         self.fonts_model = load_model(model_name)
@@ -85,7 +86,7 @@ class BaseImageModel:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (5, 5), 0)
         adaptive_thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                                cv2.THRESH_BINARY_INV, 11, 2)
+                                                cv2.THRESH_BINARY_INV, 3, 2)
 
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
         connected_text = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_CLOSE, kernel)

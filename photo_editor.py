@@ -46,16 +46,6 @@ class Main(EditorWindow):
         self.toolbar.addAction(self.save_action)
 
 
-    def click_save(self):
-        try:
-            file, _ = QFileDialog.getSaveFileName(self, 'Save File', f"{self.img_class.img_name}."
-                                                                     f"{self.img_class.img_format}",
-                                                  "Image Files (*.jpg *.png *.jpeg *.ico);;All Files (*)")
-            self.img_class.save_img(file)
-        except Exception:
-            pass
-
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     # window = Start()

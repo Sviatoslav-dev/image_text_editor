@@ -1,5 +1,4 @@
-from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtWidgets import QDialog, QVBoxLayout, QLineEdit
+from PySide2 import QtWidgets
 
 
 class VideoScene(QtWidgets.QGraphicsScene):

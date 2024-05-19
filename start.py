@@ -68,7 +68,7 @@ class Start(QWidget):
             QIcon("C:/Users/slavi/PycharmProjects/image_text_editor/data/icon/icon.png"))
 
         self.button = self.findChild(QPushButton, "browse")
-        self.button.clicked.connect(self.on_click)
+        self.button.clicked.connect(self.open_file)
         self.files, self.main_window = None, None
 
     def retranslateUi(self):
@@ -78,7 +78,7 @@ class Start(QWidget):
                                       "<html><head/><body><p align=\"center\"><span style=\" font-size:16pt; font-weight:600; color:#aa007f;\">Start from choosing your files</span></p></body></html>"))
         self.browse.setText(_translate("Editor", "Browse here"))
 
-    def on_click(self):
+    def open_file(self):
         files, _ = QFileDialog.getOpenFileNames(self, "Choose Image File", "",
                                                 "Image Files (*.jpg *.png *.jpeg *.ico);;All Files (*)")
         if files:

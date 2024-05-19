@@ -28,10 +28,10 @@ class VideoModel(BaseImageModel):
             self.frames.append(frame)
 
     def setup_camera(self, fps):
-        path = "data/wideo_with_text1.mp4"
+        path = "data/wideo_with_text.mp4"
         self.video_capture.open(path)
 
-        fps = self.video_capture.get(cv2.CAP_PROP_FPS)  # OpenCV v2.x used "CV_CAP_PROP_FPS"
+        fps = self.video_capture.get(cv2.CAP_PROP_FPS)
         frame_count = int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
         duration = frame_count / fps
         print("duration", duration)
@@ -185,4 +185,4 @@ class VideoModel(BaseImageModel):
             current_frame_num += step
 
     def get_polygon_height(self, polygon):
-        return int((polygon[3][1] - polygon[0][1]) * 0.8)
+        return int((polygon[3][1] - polygon[0][1]))# * 0.8)
