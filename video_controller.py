@@ -11,12 +11,12 @@ class VideoController:
     pause = False
     first_stop = False
 
-    def __init__(self, window):
+    def __init__(self, window, path):
         self.selected_action = VideoAction.ReplaceText
         self.window = window
         self.scene = window.scene
 
-        self.video_model = VideoModel()
+        self.video_model = VideoModel(path)
         self.setup_camera(self.video_model.fps)
         # self.window.quit_button.clicked.connect(self.close_win)
         self.window.slider.valueChanged.connect(self.seek_video)

@@ -5,7 +5,10 @@ from PySide2.QtCore import QSize, QCoreApplication
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
+from photo_controller import PhotoController
 from photo_editor import Main
+from video_controller import VideoController
+from video_editor import VideoPlayer
 
 
 class Start(QWidget):
@@ -79,14 +82,32 @@ class Start(QWidget):
         self.browse.setText(_translate("Editor", "Browse here"))
 
     def open_file(self):
-        files, _ = QFileDialog.getOpenFileNames(self, "Choose Image File", "",
-                                                "Image Files (*.jpg *.png *.jpeg *.ico);;All Files (*)")
-        if files:
-            self.files = files
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getOpenFileName(self, "Open File", "",
+                                                   "All Files (*);;Image Files (*.jpg *.jpeg *.png *.bmp);;Video Files (*.avi *.mp4 *.mov *.mkv)",
+                                                   options=options)
+
+        if file_path:
+            self.files = file_path
             print(self.files)
             self.close()
-            self.main_window = Main(self.files)
-            self.main_window.show()
+            if file_path.endswith(('.jpg', '.jpeg', '.png', '.bmp')):
+                window = Main()
+                # window.show()
+                PhotoController(
+                    window,
+                    file_path,
+                    # "data/img_7.png",
+                )
+            elif file_path.endswith(('.avi', '.mp4', '.mov', '.mkv')):
+                player = VideoPlayer()
+                # player.show()
+                VideoController(
+                    player,
+                    file_path,
+                    # "data/wideo_with_text.mp4",
+                )
+                player.show()
 
 
 if __name__ == "__main__":

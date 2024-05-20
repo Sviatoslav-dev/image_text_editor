@@ -7,12 +7,12 @@ from east_text_detection import find_text_by_east
 
 
 class VideoModel(BaseImageModel):
-    def __init__(self):
+    def __init__(self, video_path):
         super().__init__()
         self.video_capture = cv2.VideoCapture()
 
         fps = 30
-        self.setup_camera(fps)
+        self.setup_camera(fps, video_path)
         self.fps = fps
         self.frame_num = -1
         self.frames = []
@@ -27,8 +27,7 @@ class VideoModel(BaseImageModel):
                 break
             self.frames.append(frame)
 
-    def setup_camera(self, fps):
-        path = "data/wideo_with_text.mp4"
+    def setup_camera(self, fps, path):
         self.video_capture.open(path)
 
         fps = self.video_capture.get(cv2.CAP_PROP_FPS)
