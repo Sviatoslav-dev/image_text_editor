@@ -23,8 +23,8 @@ class PhotoModel(BaseImageModel):
     def replace_text(self, new_text, x, y, weight, height):
         img_part = self.img[y:y + height, x:x + weight]
         # numpy_image = annotate_text(numpy_image)
-        predictions = self.find_text(img_part)
-        prediction = predictions[0][0][1]
+        prediction_groups, united_groups = self.find_text(img_part)
+        prediction = prediction_groups[0][0][1]
         first_block_part = img_part[
             int(prediction[0][1]):int(prediction[3][1]),
             int(prediction[0][0]):int(prediction[1][0]),
@@ -33,23 +33,25 @@ class PhotoModel(BaseImageModel):
         color = self.get_mean_color(first_block_part)
         print("color: ", color)
         print("font: ", font)
-        img_part = self.clear_text(img_part, predictions[0])
+        for box in prediction_groups[0]:
+            img_part = self.clear_text(img_part, box[1])
         img_part = self.draw_text(
             img_part, new_text,
-            predictions[0][0][1][0][0], predictions[0][0][1][0][1],
-            self.get_box_height(predictions[0][0]), color=color, font=font,
+            united_groups[0][0], united_groups[0][1],
+            # prediction_groups[0][0][1][0][0], prediction_groups[0][0][1][0][1],
+            self.get_box_height(prediction_groups[0][0]), color=color, font=font,
         )
         self.img[y:y + height, x:x + weight] = img_part
 
     def remove_text(self, x, y, weight, height):
         img_part = self.img[y:y + height, x:x + weight]
-        predictions = self.find_text(img_part)
-        img_part = self.clear_text(img_part, predictions[0])
+        prediction_groups, united_groups = self.find_text(img_part)
+        img_part = self.clear_text(img_part, prediction_groups[0][0][1])
         self.img[y:y + height, x:x + weight] = img_part
 
     def copy_text(self, x, y, weight, height):
         img_part = self.img[y:y + height, x:x + weight]
-        predictions = self.find_text(img_part)
+        predictions, united_groups = self.find_text(img_part)
         text = ""
         for prediction in predictions[0]:
             text += " " + prediction[0]

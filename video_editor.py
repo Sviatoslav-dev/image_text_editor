@@ -71,6 +71,6 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     player = VideoPlayer()
     # player.show()
-    VideoController(player, "data/wideo_with_text.mp4")
+    VideoController(player, "data/wideo_with_text3.mp4")
     player.show()
     sys.exit(app.exec_())

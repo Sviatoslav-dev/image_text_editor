@@ -35,21 +35,20 @@ class VideoModel(BaseImageModel):
         duration = frame_count / fps
         print("duration", duration)
 
-
     def replace_text(self, new_text, x, y, weight, height):
         current_frame = self.get_current_frame()
 
         img_part = current_frame[y:y + height, x:x + weight]
-        predictions = self.find_text(img_part)
+        predictions, united_groups = self.find_text(img_part)
         font = self.predict_font(img_part)
         color = self.get_mean_color(img_part)
 
-        prediction = predictions[0][0][1]
+        box = self._polygon_to_box(united_groups)
         box = (
-            x + prediction[0][0],
-            y + prediction[0][1],
-            prediction[1][0] - prediction[0][0],
-            prediction[3][1] - prediction[0][1],
+            x + box[0],
+            y + box[1],
+            box[2],
+            box[3],
         )
         tracker = cv2.legacy.TrackerCSRT_create()
         tracker.init(current_frame, box)
@@ -65,7 +64,7 @@ class VideoModel(BaseImageModel):
 
             prediction = self.convert_box_to_polygon(box)
 
-            current_frame = self.clear_text(current_frame, box=(None, prediction))
+            current_frame = self.clear_text(current_frame, prediction)
             current_frame = self.draw_text(
                 current_frame, new_text,
                 prediction[0][0], prediction[0][1],
@@ -79,14 +78,14 @@ class VideoModel(BaseImageModel):
         current_frame = self.get_current_frame()
 
         img_part = current_frame[y:y + height, x:x + weight]
-        predictions = self.find_text(img_part)
+        predictions, united_groups = self.find_text(img_part)
 
-        prediction = predictions[0][0][1]
+        box = self._polygon_to_box(united_groups)
         box = (
-            x + prediction[0][0],
-            y + prediction[0][1],
-            prediction[1][0] - prediction[0][0],
-            prediction[3][1] - prediction[0][1],
+            x + box[0],
+            y + box[1],
+            box[2],
+            box[3],
         )
         tracker = cv2.legacy.TrackerCSRT_create()
         tracker.init(current_frame, box)
@@ -102,7 +101,7 @@ class VideoModel(BaseImageModel):
 
             prediction = self.convert_box_to_polygon(box)
 
-            current_frame = self.clear_text(current_frame, box=(None, prediction))
+            current_frame = self.clear_text(current_frame, prediction)
             self.frames[current_frame_num] = current_frame
 
             current_frame_num += 1
@@ -149,7 +148,7 @@ class VideoModel(BaseImageModel):
     def copy_text(self, x, y, weight, height):
         frame = self.frames[self.frame_num]
         img_part = frame[y:y + height, x:x + weight]
-        predictions = self.find_text(img_part)
+        predictions, united_groups = self.find_text(img_part)
         text = ""
         for prediction in predictions[0]:
             text += " " + prediction[0]
@@ -175,7 +174,7 @@ class VideoModel(BaseImageModel):
         while current_frame_num < self.frames_count:
             print("current_frame_num: ", current_frame_num)
             current_frame = self.frames[current_frame_num]
-            predictions = self.find_text(current_frame)
+            predictions, united_groups = self.find_text(current_frame)
             founded_text = ""
             for prediction in predictions[0]:
                 founded_text += " " + prediction[0]
@@ -184,4 +183,4 @@ class VideoModel(BaseImageModel):
             current_frame_num += step
 
     def get_polygon_height(self, polygon):
-        return int((polygon[3][1] - polygon[0][1]))# * 0.8)
+        return int((polygon[3][1] - polygon[0][1]))  # * 0.8)

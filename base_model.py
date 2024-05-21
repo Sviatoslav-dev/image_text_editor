@@ -21,9 +21,41 @@ class BaseImageModel:
         model_name = os.path.join(MODEL_DIR, "font.model.02.keras")
         self.fonts_model = load_model(model_name)
 
+    def _polygon_to_box(self, polygon):
+        min_x, min_y = float('inf'), float('inf')
+        max_x, max_y = 0, 0
+        min_x = min(min_x, min([coordinate[0] for coordinate in polygon]))
+        min_y = min(min_y, min([coordinate[1] for coordinate in polygon]))
+        max_x = max(max_x, max([coordinate[0] for coordinate in polygon]))
+        max_y = max(max_y, max([coordinate[1] for coordinate in polygon]))
+        return min_x, min_y, max_x - min_x, max_y - min_y
+
+    def _unite_predictions(self, prediction_groups):
+        min_x, min_y = float('inf'), float('inf')
+        max_x, max_y = 0, 0
+
+        for prediction in prediction_groups[0]:
+            box = prediction[1]
+            min_x = min(min_x, min([coordinate[0] for coordinate in box]))
+            min_y = min(min_y, min([coordinate[1] for coordinate in box]))
+            max_x = max(max_x, max([coordinate[0] for coordinate in box]))
+            max_y = max(max_y, max([coordinate[1] for coordinate in box]))
+
+        overall_box = [(min_x, min_y), (max_x, min_y), (max_x, max_y), (min_x, max_y)]
+        return np.array(overall_box)
+
     def find_text(self, image):
         predictions = self.pipeline.recognize([image])
-        return predictions
+        return predictions, self._unite_predictions(predictions)
+
+    def calculate_box_height(self, box):
+        points = np.array(box)
+
+        height1 = np.linalg.norm(points[0] - points[2])
+        height2 = np.linalg.norm(points[1] - points[3])
+
+        height = max(height1, height2)
+        return height
 
     def predict_font(self, img: np.ndarray):
         height, weight, _ = img.shape
@@ -42,23 +74,38 @@ class BaseImageModel:
         mask = self._segmentate_text(image)
         mean = cv2.mean(image, mask)
         return int(mean[0]), int(mean[1]), int(mean[2])
+        # gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        #
+        # mean_brightness = np.mean(gray_image)
+        #
+        # # _, binary_image = cv2.threshold(gray_image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        # text_is_dark = mean_brightness > 128
+        #
+        # if mean_brightness > 128:
+        #     _, binary_image = cv2.threshold(gray_image, 0, 255,
+        #                                     cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        # else:
+        #     _, binary_image = cv2.threshold(gray_image, 0, 255,
+        #                                     cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        #
+        # cv2.imshow("rrr", binary_image)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+        #
+        # masked_text_region = cv2.bitwise_and(image, image, mask=binary_image)
+        # mask_value = 0 if text_is_dark else 255
+        # pixels = masked_text_region[binary_image == mask_value]
+        # average_color = tuple(np.mean(pixels, axis=0)) if len(pixels) > 0 else (0, 0, 0)
+        # return int(average_color[0]), int(average_color[1]), int(average_color[2])
 
-    def clear_text(self, image, prediction_group=None, box=None):
-        box = prediction_group[0] if box is None else box
-        x0, y0 = box[1][0]
-        x1, y1 = box[1][1]
-        x2, y2 = box[1][2]
-        x3, y3 = box[1][3]
-
-        x_mid0, y_mid0 = self._midpoint(x1, y1, x2, y2)
-        x_mid1, y_mi1 = self._midpoint(x0, y0, x3, y3)
-        thickness = int(math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2))
-
+    def clear_text(self, image, prediction):
         mask = np.zeros(image.shape[:2], dtype="uint8")
-        cv2.line(mask, (x_mid0, y_mid0), (x_mid1, y_mi1), 255, thickness)
+        pts = np.array([[int(point[0]), int(point[1])] for point in prediction], np.int32)
+        pts = pts.reshape((-1, 1, 2))
+        cv2.fillPoly(mask, [pts], 255)
 
-        img_inpainted = cv2.inpaint(image, mask, 7, cv2.INPAINT_NS)
-        return img_inpainted
+        image = cv2.inpaint(image, mask, 7, cv2.INPAINT_NS)
+        return image
 
     def draw_text(self, image, text, x, y, h, color=(255, 255, 255), font="Arial"):
         # print("xy", x, y)
