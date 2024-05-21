@@ -51,9 +51,10 @@ class PhotoModel(BaseImageModel):
 
     def copy_text(self, x, y, weight, height):
         img_part = self.img[y:y + height, x:x + weight]
-        predictions, united_groups = self.find_text(img_part)
-        text = ""
-        for prediction in predictions[0]:
-            text += " " + prediction[0]
+        prediction_groups, united_groups = self.find_text(img_part)
+        lines = self.group_text_by_lines(prediction_groups[0])
+
+        text = '\n'.join(lines)
+
         pyperclip.copy(text)
-        print(predictions)
+        print(prediction_groups)

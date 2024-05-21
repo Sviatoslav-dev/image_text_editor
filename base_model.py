@@ -149,3 +149,27 @@ class BaseImageModel:
         x_mid = int((x1 + x2) / 2)
         y_mid = int((y1 + y2) / 2)
         return x_mid, y_mid
+
+    def group_text_by_lines(self, predictions):
+        predictions = sorted(predictions, key=lambda x: (x[1][0][1] + x[1][2][1]) / 2)
+
+        lines = []
+        current_line = []
+        current_base_y = (predictions[0][1][0][1] + predictions[0][1][2][1]) / 2
+
+        tolerance = 5
+
+        for text, box in predictions:
+            base_y = (box[0][1] + box[2][1]) / 2
+            if abs(base_y - current_base_y) > tolerance:
+                current_line = sorted(current_line, key=lambda x: x[1])
+                lines.append(" ".join([word[0] for word in current_line]))
+                current_line = []
+                current_base_y = base_y
+            current_line.append((text, box[0][0]))
+
+        if current_line:
+            current_line = sorted(current_line, key=lambda x: x[1])
+            lines.append(" ".join([word[0] for word in current_line]))
+
+        return lines

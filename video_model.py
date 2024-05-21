@@ -148,12 +148,11 @@ class VideoModel(BaseImageModel):
     def copy_text(self, x, y, weight, height):
         frame = self.frames[self.frame_num]
         img_part = frame[y:y + height, x:x + weight]
-        predictions, united_groups = self.find_text(img_part)
-        text = ""
-        for prediction in predictions[0]:
-            text += " " + prediction[0]
+        prediction_groups, united_groups = self.find_text(img_part)
+        lines = self.group_text_by_lines(prediction_groups[0])
+
+        text = '\n'.join(lines)
         pyperclip.copy(text)
-        print(predictions)
 
     def save_video(self, file_path):
         # Налаштування VideoWriter
