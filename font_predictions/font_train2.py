@@ -21,7 +21,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from numpy import repeat
 
-from font_from_image_main.fonts import fonts
+from font_predictions.fonts import fonts
 
 seed = 128
 np.random.seed(seed)

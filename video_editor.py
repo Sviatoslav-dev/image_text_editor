@@ -11,10 +11,11 @@ from video_scene import VideoScene
 
 class VideoPlayer(EditorWindow):
 
-    def __init__(self, width=640, height=480, fps=30):
+    def __init__(self, width=960, height=540, fps=30):
         super().__init__()
 
         self.video_size = QtCore.QSize(width, height)
+        self.video_size.width()
         self.frame_timer = QtCore.QTimer()
 
         self.gv.setFixedSize(self.video_size)
@@ -71,6 +72,6 @@ if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     player = VideoPlayer()
     # player.show()
-    VideoController(player, "data/wideo_with_text3.mp4")
+    VideoController(player, "data/video_with_text8.mp4")
     player.show()
     sys.exit(app.exec_())

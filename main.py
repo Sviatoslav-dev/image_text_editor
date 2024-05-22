@@ -14,6 +14,6 @@ if __name__ == "__main__":
     # window.show()
     controller = PhotoController(
         window,
-        "data/img.png",
+        "data/img_8.png",
     )
     app.exec_()

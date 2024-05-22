@@ -5,7 +5,7 @@ import string
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-from font_from_image_main.fonts import fonts
+from font_predictions.fonts import fonts
 
 
 def add_noise(img):
@@ -24,7 +24,8 @@ def add_noise(img):
 
 def create_text_image(text, font_path, font_size, num):
     font_color = random.randint(0, 255)
-    image = Image.new('RGB', (150, 50), color=(255 - font_color, 255 - font_color, 255 - font_color))
+    image = Image.new('RGB', (150, 50),
+                      color=(255 - font_color, 255 - font_color, 255 - font_color))
     draw = ImageDraw.Draw(image)
 
     font = ImageFont.truetype("../data/fonts/" + font_path + ".ttf", font_size)
@@ -42,7 +43,8 @@ def create_text_image(text, font_path, font_size, num):
     image.crop((50, 0, 100, 50)).save("../data/fonts_data/" + font_path + f"/text_{num}_2.png")
     image.crop((100, 0, 150, 50)).save("../data/fonts_data/" + font_path + f"/text_{num}_3.png")
 
-fonts_count = 10
+
+fonts_count = 5000
 
 for font_name in fonts:
     print(font_name)

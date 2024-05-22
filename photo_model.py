@@ -35,10 +35,11 @@ class PhotoModel(BaseImageModel):
         print("font: ", font)
         for box in prediction_groups[0]:
             img_part = self.clear_text(img_part, box[1])
+
+        centroid = self.find_polygon_centroid(united_groups)
         img_part = self.draw_text(
             img_part, new_text,
-            united_groups[0][0], united_groups[0][1],
-            # prediction_groups[0][0][1][0][0], prediction_groups[0][0][1][0][1],
+            centroid[0], centroid[1],
             self.get_box_height(prediction_groups[0][0]), color=color, font=font,
         )
         self.img[y:y + height, x:x + weight] = img_part

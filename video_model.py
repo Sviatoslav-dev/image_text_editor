@@ -40,8 +40,14 @@ class VideoModel(BaseImageModel):
 
         img_part = current_frame[y:y + height, x:x + weight]
         predictions, united_groups = self.find_text(img_part)
-        font = self.predict_font(img_part)
-        color = self.get_mean_color(img_part)
+        prediction = predictions[0][0][1]
+        first_block_part = img_part[
+                           int(prediction[0][1]):int(prediction[3][1]),
+                           int(prediction[0][0]):int(prediction[1][0]),
+                           ]
+        font = self.predict_font(first_block_part)
+        color = self.get_mean_color(first_block_part)
+        text_height = self.get_box_height(predictions[0][0])
 
         box = self._polygon_to_box(united_groups)
         box = (
@@ -65,14 +71,61 @@ class VideoModel(BaseImageModel):
             prediction = self.convert_box_to_polygon(box)
 
             current_frame = self.clear_text(current_frame, prediction)
+            centroid = self.find_polygon_centroid(prediction)
             current_frame = self.draw_text(
                 current_frame, new_text,
-                prediction[0][0], prediction[0][1],
-                self.get_polygon_height(prediction), color=color, font=font,
+                centroid[0], centroid[1],
+                text_height, color=color, font=font,
             )
             self.frames[current_frame_num] = current_frame
 
             current_frame_num += 1
+
+    def replace_text_revert(self, new_text, x, y, weight, height):
+        current_frame = self.frames[self.frame_num - 1]
+
+        img_part = current_frame[y:y + height, x:x + weight]
+        predictions, united_groups = self.find_text(img_part)
+        prediction = predictions[0][0][1]
+        first_block_part = img_part[
+                           int(prediction[0][1]):int(prediction[3][1]),
+                           int(prediction[0][0]):int(prediction[1][0]),
+                           ]
+        font = self.predict_font(first_block_part)
+        color = self.get_mean_color(first_block_part)
+        text_height = self.get_box_height(predictions[0][0])
+
+        box = self._polygon_to_box(united_groups)
+        box = (
+            x + box[0],
+            y + box[1],
+            box[2],
+            box[3],
+        )
+        tracker = cv2.legacy.TrackerCSRT_create()
+        tracker.init(current_frame, box)
+
+        current_frame_num = self.frame_num - 1
+        while current_frame_num >= 0:
+            print("current_frame_num: ", current_frame_num)
+            current_frame = self.frames[current_frame_num]
+            success, box = tracker.update(current_frame)
+
+            if not success:
+                break
+
+            prediction = self.convert_box_to_polygon(box)
+
+            current_frame = self.clear_text(current_frame, prediction)
+            centroid = self.find_polygon_centroid(prediction)
+            current_frame = self.draw_text(
+                current_frame, new_text,
+                centroid[0], centroid[1],
+                text_height, color=color, font=font,
+            )
+            self.frames[current_frame_num] = current_frame
+
+            current_frame_num -= 1
 
     def remove_text(self, x, y, weight, height):
         current_frame = self.get_current_frame()
@@ -105,6 +158,38 @@ class VideoModel(BaseImageModel):
             self.frames[current_frame_num] = current_frame
 
             current_frame_num += 1
+
+    def remove_text_revert(self, x, y, weight, height):
+        current_frame = self.frames[self.frame_num - 1]
+
+        img_part = current_frame[y:y + height, x:x + weight]
+        predictions, united_groups = self.find_text(img_part)
+
+        box = self._polygon_to_box(united_groups)
+        box = (
+            x + box[0],
+            y + box[1],
+            box[2],
+            box[3],
+        )
+        tracker = cv2.legacy.TrackerCSRT_create()
+        tracker.init(current_frame, box)
+
+        current_frame_num = self.frame_num - 1
+        while current_frame_num >= 0:
+            print("current_frame_num: ", current_frame_num)
+            current_frame = self.frames[current_frame_num]
+            success, box = tracker.update(current_frame)
+
+            if not success:
+                break
+
+            prediction = self.convert_box_to_polygon(box)
+
+            current_frame = self.clear_text(current_frame, prediction)
+            self.frames[current_frame_num] = current_frame
+
+            current_frame_num -= 1
 
     def get_frames_count(self):
         return int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
@@ -182,4 +267,4 @@ class VideoModel(BaseImageModel):
             current_frame_num += step
 
     def get_polygon_height(self, polygon):
-        return int((polygon[3][1] - polygon[0][1]))  # * 0.8)
+        return int((polygon[3][1] - polygon[0][1]) * 1)

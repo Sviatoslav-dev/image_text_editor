@@ -106,10 +106,10 @@ class VideoController:
         current_frame = self.video_model.get_current_frame()
         height, width = current_frame.shape[:2]
 
-        x = int(self.change_size(640, width, self.scene.rect.rect().x()))
-        y = int(self.change_size(480, height, self.scene.rect.rect().y()))
-        rect_weight = int(self.change_size(640, width, self.scene.rect.rect().width()))
-        rect_height = int(self.change_size(480, height, self.scene.rect.rect().height()))
+        x = int(self.change_size(self.window.video_size.width(), width, self.scene.rect.rect().x()))
+        y = int(self.change_size(self.window.video_size.height(), height, self.scene.rect.rect().y()))
+        rect_weight = int(self.change_size(self.window.video_size.width(), width, self.scene.rect.rect().width()))
+        rect_height = int(self.change_size(self.window.video_size.height(), height, self.scene.rect.rect().height()))
         return x, y, rect_weight, rect_height
 
     def replace_text(self):
@@ -129,11 +129,13 @@ class VideoController:
         dialog.exec_()
 
         self.video_model.replace_text(text, *self._resize_rect())
+        self.video_model.replace_text_revert(text, *self._resize_rect())
 
         self.show_frame(self.video_model.get_current_frame())
 
     def remove_text(self):
         self.video_model.remove_text(*self._resize_rect())
+        self.video_model.remove_text_revert(*self._resize_rect())
         self.show_frame(self.video_model.get_current_frame())
 
     def copy_text(self):
