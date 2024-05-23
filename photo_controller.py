@@ -10,7 +10,8 @@ import qimage2ndarray
 
 
 class PhotoController:
-    def __init__(self, window: Main, image_path):
+    def __init__(self, window: Main, image_path, start_window):
+        self.start_window = start_window
         self.selected_action = ImageAction.ReplaceText
         self.window = window
         self.scene = window.scene
@@ -26,6 +27,7 @@ class PhotoController:
         self.window.remove_action.triggered.connect(self.set_action_remove)
         self.window.copy_action.triggered.connect(self.set_action_copy)
         self.window.save_action.triggered.connect(self.save_image)
+        self.window.close_file_action.triggered.connect(self.close_file)
 
     def set_action_replace(self):
         self.selected_action = ImageAction.ReplaceText
@@ -92,3 +94,8 @@ class PhotoController:
         if file_path:
             self.window.scene.q_pixmap.pixmap().save(file_path)
             print(f"Image saved to {file_path}")
+
+    def close_file(self):
+        self.window.close()
+        # start_window = Start()
+        self.start_window.show()

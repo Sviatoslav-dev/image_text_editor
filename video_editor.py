@@ -44,6 +44,7 @@ class VideoPlayer(EditorWindow):
         self.copy_action.setCheckable(True)
         self.find_action = QAction("Find text", self)
         self.save_action = QAction("Save", self)
+        self.close_file_action = QAction("Close file", self)
 
         self.tools_group.addAction(self.replace_action)
         self.tools_group.addAction(self.remove_action)
@@ -58,6 +59,8 @@ class VideoPlayer(EditorWindow):
         self.toolbar.addAction(self.find_action)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.save_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.close_file_action)
 
     def setup_ui(self):
         self.video_layout.addWidget(self.play_pause_button, 1, 1, 1, 1)

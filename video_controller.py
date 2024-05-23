@@ -11,7 +11,8 @@ class VideoController:
     pause = False
     first_stop = False
 
-    def __init__(self, window, path):
+    def __init__(self, window, path, start_window):
+        self.start_window = start_window
         self.selected_action = VideoAction.ReplaceText
         self.window = window
         self.scene = window.scene
@@ -29,6 +30,7 @@ class VideoController:
         self.window.copy_action.triggered.connect(self.set_action_copy)
         self.window.find_action.triggered.connect(self.find_frame_with_text)
         self.window.save_action.triggered.connect(self.save_video)
+        self.window.close_file_action.triggered.connect(self.close_file)
 
         # self.window.show()
 
@@ -173,7 +175,8 @@ class VideoController:
             self.window.slider.setValue(frame_num)
             self.show_frame(frame)
 
-    # def close_win(self):
-    #     self.video_model.video_capture.release()
-    #     cv2.destroyAllWindows()
-    #     self.window.close()
+    def close_file(self):
+        self.video_model.video_capture.release()
+        cv2.destroyAllWindows()
+        self.window.close()
+        self.start_window.show()

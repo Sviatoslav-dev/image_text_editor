@@ -32,6 +32,7 @@ class Main(EditorWindow):
         self.copy_action = QAction("Copy text", self)
         self.copy_action.setCheckable(True)
         self.save_action = QAction("Save", self)
+        self.close_file_action = QAction("Close file", self)
 
         self.tools_group.addAction(self.replace_action)
         self.tools_group.addAction(self.remove_action)
@@ -44,6 +45,8 @@ class Main(EditorWindow):
         self.toolbar.addAction(self.copy_action)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.save_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.close_file_action)
 
 
 if __name__ == "__main__":

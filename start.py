@@ -90,13 +90,14 @@ class Start(QWidget):
         if file_path:
             self.files = file_path
             print(self.files)
-            self.close()
+            self.hide()
             if file_path.endswith(('.jpg', '.jpeg', '.png', '.bmp')):
                 window = Main()
                 # window.show()
                 PhotoController(
                     window,
                     file_path,
+                    self,
                     # "data/img_7.png",
                 )
             elif file_path.endswith(('.avi', '.mp4', '.mov', '.mkv')):
@@ -106,6 +107,7 @@ class Start(QWidget):
                     player,
                     file_path,
                     # "data/wideo_with_text.mp4",
+                    self,
                 )
                 player.show()
 
