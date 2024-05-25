@@ -19,6 +19,7 @@ class VideoModel(BaseImageModel):
         self.frames = []
         self.frames_count = self.get_frames_count()
         self.read_all_frames()
+        self.translate_option = ("en", "uk")
 
     def read_all_frames(self):
         self.frames = []
@@ -132,7 +133,6 @@ class VideoModel(BaseImageModel):
                                            config="--oem 1 --psm 6").strip()
         text = self.translator.translate(text, src=src, dest=dest).text
         return text
-
 
     def remove_text(self, x, y, weight, height):
         current_frame = self.get_current_frame()
@@ -266,11 +266,9 @@ class VideoModel(BaseImageModel):
         while current_frame_num < self.frames_count:
             print("current_frame_num: ", current_frame_num)
             current_frame = self.frames[current_frame_num]
-            predictions, united_groups = self.find_text(current_frame)
-            founded_text = ""
-            for prediction in predictions[0]:
-                founded_text += " " + prediction[0]
-            if text in founded_text:
+            founded_text = pytesseract.image_to_string(current_frame, lang='eng+ukr',
+                                                       config="--oem 1 --psm 6").strip()
+            if text in founded_text.lower():
                 return current_frame_num
             current_frame_num += step
 

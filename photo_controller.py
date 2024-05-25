@@ -9,6 +9,8 @@ from photo_editor import Main
 from photo_model import PhotoModel
 import qimage2ndarray
 
+from translation_dialog import TranslationDialog
+
 
 class CustomTextEdit(QTextEdit):
     def __init__(self, parent=None):
@@ -58,6 +60,9 @@ class PhotoController:
         self.selected_action = ImageAction.CopyText
 
     def set_action_translate(self):
+        dialog = TranslationDialog()
+        dialog.exec_()
+        self.image_model.translate_option = dialog.selected_option
         self.selected_action = ImageAction.TranslateText
 
     def update_image(self):
@@ -136,8 +141,9 @@ class PhotoController:
     def translate(self):
         print(self.scene.rect.rect().width(), self.scene.rect.rect().height())
         rect = self.scene.rect.rect()
+        languges = self.image_model.translate_option
         text = self.image_model.translate_text(
-            int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()), src="en", dest="uk"
+            int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()), *languges
         )
         self.image_model.replace_text(
             text, int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()))

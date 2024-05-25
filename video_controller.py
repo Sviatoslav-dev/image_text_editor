@@ -1,8 +1,9 @@
 import cv2
 import qimage2ndarray
-from PySide2 import QtGui, QtCore, QtWidgets
+from PySide2 import QtGui, QtCore
 from PySide2.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QFileDialog
 
+from translation_dialog import TranslationDialog
 from video_actions import VideoAction
 from video_model import VideoModel
 
@@ -56,6 +57,9 @@ class VideoController:
         self.selected_action = VideoAction.CopyText
 
     def set_action_translate(self):
+        dialog = TranslationDialog()
+        dialog.exec_()
+        self.video_model.translate_option = dialog.selected_option
         self.selected_action = VideoAction.TranslateText
 
     def setup_camera(self, fps):
@@ -175,7 +179,7 @@ class VideoController:
         dialog.setLayout(dialog_layout)
         dialog.exec_()
 
-        frame_num = self.video_model.find_frame_with_text(text, 10)
+        frame_num = self.video_model.find_frame_with_text(text, 50)
         if frame_num is not None:
             self.video_model.set_frame_number(frame_num)
             ret, frame = self.video_model.next_frame()
@@ -189,7 +193,8 @@ class VideoController:
         self.start_window.show()
 
     def translate(self):
-        text = self.video_model.translate_text(*self._resize_rect())
+        languges = self.video_model.translate_option
+        text = self.video_model.translate_text(*self._resize_rect(), *languges)
         self.video_model.replace_text(text, *self._resize_rect())
 
         self.show_frame(self.video_model.get_current_frame())

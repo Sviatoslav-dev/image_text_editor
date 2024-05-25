@@ -13,6 +13,7 @@ class PhotoModel(BaseImageModel):
     def __init__(self):
         super().__init__()
         self.img = None
+        self.translate_option = ("en", "uk")
 
     def read_image(self, path):
         self.img = cv2.imread(path, 1)
