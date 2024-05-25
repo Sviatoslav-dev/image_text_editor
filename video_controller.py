@@ -26,11 +26,14 @@ class VideoController:
         self.scene.update_video = self.update_video
 
         self.window.replace_action.triggered.connect(self.set_action_replace)
+        self.window.translate_text.triggered.connect(self.set_action_translate)
         self.window.remove_action.triggered.connect(self.set_action_remove)
         self.window.copy_action.triggered.connect(self.set_action_copy)
         self.window.find_action.triggered.connect(self.find_frame_with_text)
         self.window.save_action.triggered.connect(self.save_video)
         self.window.close_file_action.triggered.connect(self.close_file)
+        self.window.select_whole.triggered.connect(self.set_action_translate)
+        self.window.undo.triggered.connect(self.undo)
 
         # self.window.show()
 
@@ -39,6 +42,7 @@ class VideoController:
             VideoAction.ReplaceText: self.replace_text,
             VideoAction.RemoveText: self.remove_text,
             VideoAction.CopyText: self.copy_text,
+            VideoAction.TranslateText: self.translate,
 
         }[self.selected_action]()
 
@@ -50,6 +54,9 @@ class VideoController:
 
     def set_action_copy(self):
         self.selected_action = VideoAction.CopyText
+
+    def set_action_translate(self):
+        self.selected_action = VideoAction.TranslateText
 
     def setup_camera(self, fps):
         self.window.slider.setMinimum(0)
@@ -180,3 +187,14 @@ class VideoController:
         cv2.destroyAllWindows()
         self.window.close()
         self.start_window.show()
+
+    def translate(self):
+        text = self.video_model.translate_text(*self._resize_rect())
+        self.video_model.replace_text(text, *self._resize_rect())
+
+        self.show_frame(self.video_model.get_current_frame())
+
+    def undo(self):
+        self.video_model.read_all_frames()
+        self.show_frame(self.video_model.get_current_frame())
+

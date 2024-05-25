@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import pyperclip
+import pytesseract
 
 from base_model import BaseImageModel
 from east_text_detection import find_text_by_east
@@ -21,6 +22,7 @@ class VideoModel(BaseImageModel):
 
     def read_all_frames(self):
         self.frames = []
+        self.video_capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
         while True:
             ret, frame = self.video_capture.read()
             if not ret:
@@ -119,53 +121,18 @@ class VideoModel(BaseImageModel):
 
             current_frame_num -= 1
 
-    def replace_text_revert(self, new_text, x, y, weight, height):
-        current_frame = self.frames[self.frame_num - 1]
-
-        img_part = current_frame[y:y + height, x:x + weight]
-        predictions, united_groups = self.find_text(img_part)
-        prediction = predictions[0][0][1]
+    def translate_text(self, x, y, weight, height, src="en", dest="uk"):
+        img_part = self.get_current_frame()[y:y + height, x:x + weight]
+        prediction_groups, united_groups = self.find_text(img_part)
         first_block_part = img_part[
-                           int(prediction[0][1]):int(prediction[3][1]),
-                           int(prediction[0][0]):int(prediction[1][0]),
+                           int(united_groups[0][1]):int(united_groups[3][1]),
+                           int(united_groups[0][0]):int(united_groups[1][0]),
                            ]
-        font = self.predict_font(first_block_part)
-        color = self.get_mean_color(first_block_part)
-        text_height = self.get_box_height(predictions[0][0])
+        text = pytesseract.image_to_string(first_block_part, lang='eng+ukr',
+                                           config="--oem 1 --psm 6").strip()
+        text = self.translator.translate(text, src=src, dest=dest).text
+        return text
 
-        box = self._polygon_to_box(united_groups)
-        box = (
-            x + box[0],
-            y + box[1],
-            box[2],
-            box[3],
-        )
-        tracker = cv2.legacy.TrackerCSRT_create()
-        # tracker = cv2.legacy.TrackerKCF_create()
-        # tracker = cv2.legacy.TrackerMIL_create()
-        tracker.init(current_frame, box)
-
-        current_frame_num = self.frame_num - 1
-        while current_frame_num >= 0:
-            print("current_frame_num: ", current_frame_num)
-            current_frame = self.frames[current_frame_num]
-            success, box = tracker.update(current_frame)
-
-            if not success:
-                break
-
-            prediction = self.convert_box_to_polygon(box)
-
-            current_frame = self.clear_text(current_frame, prediction)
-            centroid = self.find_polygon_centroid(prediction)
-            current_frame = self.draw_text(
-                current_frame, new_text,
-                centroid[0], centroid[1],
-                text_height, color=color, font=font,
-            )
-            self.frames[current_frame_num] = current_frame
-
-            current_frame_num -= 1
 
     def remove_text(self, x, y, weight, height):
         current_frame = self.get_current_frame()
@@ -273,14 +240,15 @@ class VideoModel(BaseImageModel):
     def copy_text(self, x, y, weight, height):
         frame = self.frames[self.frame_num]
         img_part = frame[y:y + height, x:x + weight]
-        prediction_groups, united_groups = self.find_text(img_part)
-        lines = self.group_text_by_lines(prediction_groups[0])
-
-        text = '\n'.join(lines)
+        text = pytesseract.image_to_string(img_part, lang='eng+ukr',
+                                           config="--oem 1 --psm 6").strip()
+        # prediction_groups, united_groups = self.find_text(img_part)
+        # lines = self.group_text_by_lines(prediction_groups[0])
+        #
+        # text = '\n'.join(lines)
         pyperclip.copy(text)
 
     def save_video(self, file_path):
-        # Налаштування VideoWriter
         height, width, _ = self.frames[0].shape
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         out = cv2.VideoWriter(file_path, fourcc, 20.0, (width, height))

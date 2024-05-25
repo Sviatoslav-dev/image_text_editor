@@ -1,5 +1,8 @@
+import copy
+
 import cv2
 import numpy as np
+import pytesseract
 
 from base_model import BaseImageModel
 import pyperclip
@@ -21,6 +24,7 @@ class PhotoModel(BaseImageModel):
             self.img_width = int(self.img_height * self.img.shape[1] / self.img.shape[0])
 
         self.img = cv2.resize(self.img, (self.img_width, self.img_height))
+        self.start_image = np.copy(self.img)
 
     def replace_text(self, new_text, x, y, weight, height):
         img_part = self.img[y:y + height, x:x + weight]
@@ -36,9 +40,9 @@ class PhotoModel(BaseImageModel):
         #         font = self.predict_font(block)
         #         print("ffffffffffffff: ", font)
         first_block_part = img_part[
-            int(prediction[0][1]):int(prediction[3][1]),
-            int(prediction[0][0]):int(prediction[1][0]),
-            ]
+                           int(prediction[0][1]):int(prediction[3][1]),
+                           int(prediction[0][0]):int(prediction[1][0]),
+                           ]
         font = self.predict_font(first_block_part)
         color = self.get_mean_color(first_block_part)
         print("color: ", color)
@@ -55,6 +59,18 @@ class PhotoModel(BaseImageModel):
         )
         self.img[y:y + height, x:x + weight] = img_part
 
+    def translate_text(self, x, y, weight, height, src="en", dest="uk"):
+        img_part = self.img[y:y + height, x:x + weight]
+        prediction_groups, united_groups = self.find_text(img_part)
+        first_block_part = img_part[
+                           int(united_groups[0][1]):int(united_groups[3][1]),
+                           int(united_groups[0][0]):int(united_groups[1][0]),
+                           ]
+        text = pytesseract.image_to_string(first_block_part, lang='eng+ukr',
+                                           config="--oem 1 --psm 6").strip()
+        text = self.translator.translate(text, src=src, dest=dest).text
+        return text
+
     def remove_text(self, x, y, weight, height):
         img_part = self.img[y:y + height, x:x + weight]
         prediction_groups, united_groups = self.find_text(img_part)
@@ -63,10 +79,12 @@ class PhotoModel(BaseImageModel):
 
     def read_text(self, x, y, weight, height):
         img_part = self.img[y:y + height, x:x + weight]
-        prediction_groups, united_groups = self.find_text(img_part)
-        lines = self.group_text_by_lines(prediction_groups[0])
-
-        text = '\n'.join(lines)
+        # prediction_groups, united_groups = self.find_text(img_part)
+        # lines = self.group_text_by_lines(prediction_groups[0])
+        #
+        # text = '\n'.join(lines)
+        text = pytesseract.image_to_string(img_part, lang='eng+ukr',
+                                           config="--oem 1 --psm 6").strip()
 
         return text
 
@@ -124,4 +142,3 @@ class PhotoModel(BaseImageModel):
             draw.text((start_x, current_y), line, font=font, fill=color)
             current_y += line_height + 10
         return np.array(img_pil)
-

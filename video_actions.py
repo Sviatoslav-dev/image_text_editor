@@ -6,3 +6,4 @@ class VideoAction(Enum):
     RemoveText = auto()
     CopyText = auto()
     FindText = auto()
+    TranslateText = auto()

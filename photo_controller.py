@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
@@ -44,6 +45,7 @@ class PhotoController:
         self.window.save_action.triggered.connect(self.save_image)
         self.window.close_file_action.triggered.connect(self.close_file)
         self.window.select_whole.triggered.connect(self.select_whole)
+        self.window.undo.triggered.connect(self.undo)
 
     def set_action_replace(self):
         self.selected_action = ImageAction.ReplaceText
@@ -134,14 +136,17 @@ class PhotoController:
     def translate(self):
         print(self.scene.rect.rect().width(), self.scene.rect.rect().height())
         rect = self.scene.rect.rect()
-        text = self.image_model.read_text(
-            int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()))
-        text = self.image_model.translator.translate(text, src="en", dest="uk").text
-
-        rect = self.scene.rect.rect()
+        text = self.image_model.translate_text(
+            int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()), src="en", dest="uk"
+        )
         self.image_model.replace_text(
             text, int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()))
 
         print(self.scene.items())
+        self.scene.q_pixmap.setPixmap(QPixmap.fromImage(
+            qimage2ndarray.array2qimage(cv2.cvtColor(self.image_model.img, cv2.COLOR_BGR2RGB))))
+
+    def undo(self):
+        self.image_model.img = np.copy(self.image_model.start_image)
         self.scene.q_pixmap.setPixmap(QPixmap.fromImage(
             qimage2ndarray.array2qimage(cv2.cvtColor(self.image_model.img, cv2.COLOR_BGR2RGB))))
