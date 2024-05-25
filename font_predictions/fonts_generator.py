@@ -3,7 +3,7 @@ import random
 import string
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
 
 from font_predictions.fonts import fonts
 
@@ -24,8 +24,9 @@ def add_noise(img):
 
 def create_text_image(text, font_path, font_size, num):
     font_color = random.randint(0, 255)
+    background_color = (255 - font_color, 255 - font_color, 255 - font_color)
     image = Image.new('RGB', (150, 50),
-                      color=(255 - font_color, 255 - font_color, 255 - font_color))
+                      color=background_color)
     draw = ImageDraw.Draw(image)
 
     font = ImageFont.truetype("../data/fonts/" + font_path + ".ttf", font_size)
@@ -37,14 +38,19 @@ def create_text_image(text, font_path, font_size, num):
 
     draw.text((x, y), text, font=font, fill=(font_color, font_color, font_color))
 
+    image = image.rotate(random.uniform(-10, 10), expand=True, fillcolor=background_color)
+    if random.choice([True, False]):
+        image = image.filter(ImageFilter.GaussianBlur(radius=1))
     image = add_noise(image)
+    enhancer = ImageEnhance.Brightness(image)
+    image = enhancer.enhance(random.uniform(0.5, 1.5))
 
     image.crop((0, 0, 50, 50)).save("../data/fonts_data/" + font_path + f"/text_{num}_1.png")
     image.crop((50, 0, 100, 50)).save("../data/fonts_data/" + font_path + f"/text_{num}_2.png")
     image.crop((100, 0, 150, 50)).save("../data/fonts_data/" + font_path + f"/text_{num}_3.png")
 
 
-fonts_count = 5000
+fonts_count = 2000
 
 for font_name in fonts:
     print(font_name)
@@ -52,4 +58,4 @@ for font_name in fonts:
     for i in range(fonts_count // 3):
         text = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in
                        range(random.randint(5, 10)))
-        create_text_image(text, font_name, random.randint(30, 50), num=i)
+        create_text_image(text, font_name, random.randint(30, 60), num=i)

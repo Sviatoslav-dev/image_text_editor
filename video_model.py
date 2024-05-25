@@ -49,17 +49,18 @@ class VideoModel(BaseImageModel):
         color = self.get_mean_color(first_block_part)
         text_height = self.get_box_height(predictions[0][0])
 
-        box = self._polygon_to_box(united_groups)
-        box = (
-            x + box[0],
-            y + box[1],
-            box[2],
-            box[3],
+        start_box = self._polygon_to_box(united_groups)
+        start_box = (
+            x + start_box[0],
+            y + start_box[1],
+            start_box[2],
+            start_box[3],
         )
         tracker = cv2.legacy.TrackerCSRT_create()
-        tracker.init(current_frame, box)
+        tracker.init(current_frame, start_box)
 
         current_frame_num = self.frame_num
+        draw_text = True
         while current_frame_num <= self.frames_count:
             print("current_frame_num: ", current_frame_num)
             current_frame = self.frames[current_frame_num]
@@ -72,14 +73,51 @@ class VideoModel(BaseImageModel):
 
             current_frame = self.clear_text(current_frame, prediction)
             centroid = self.find_polygon_centroid(prediction)
-            current_frame = self.draw_text(
-                current_frame, new_text,
-                centroid[0], centroid[1],
-                text_height, color=color, font=font,
-            )
+            if centroid[0] < 0:
+                draw_text = False
+            print(centroid)
+            if draw_text:
+                current_frame = self.draw_text(
+                    current_frame, new_text,
+                    centroid[0], centroid[1],
+                    text_height, color=color, font=font,
+                )
             self.frames[current_frame_num] = current_frame
 
             current_frame_num += 1
+
+        current_frame_num = self.frame_num - 1
+        current_frame = self.frames[current_frame_num]
+        tracker = cv2.legacy.TrackerCSRT_create()
+        # tracker = cv2.legacy.TrackerKCF_create()
+        # tracker = cv2.legacy.TrackerMIL_create()
+        tracker.init(current_frame, start_box)
+        draw_text = True
+
+        while current_frame_num >= 0:
+            print("current_frame_num: ", current_frame_num)
+            current_frame = self.frames[current_frame_num]
+            success, box = tracker.update(current_frame)
+
+            if not success:
+                break
+
+            prediction = self.convert_box_to_polygon(box)
+
+            current_frame = self.clear_text(current_frame, prediction)
+            centroid = self.find_polygon_centroid(prediction)
+            print(centroid)
+            if centroid[0] < 0:
+                draw_text = False
+            if draw_text:
+                current_frame = self.draw_text(
+                    current_frame, new_text,
+                    centroid[0], centroid[1],
+                    text_height, color=color, font=font,
+                )
+            self.frames[current_frame_num] = current_frame
+
+            current_frame_num -= 1
 
     def replace_text_revert(self, new_text, x, y, weight, height):
         current_frame = self.frames[self.frame_num - 1]
@@ -103,6 +141,8 @@ class VideoModel(BaseImageModel):
             box[3],
         )
         tracker = cv2.legacy.TrackerCSRT_create()
+        # tracker = cv2.legacy.TrackerKCF_create()
+        # tracker = cv2.legacy.TrackerMIL_create()
         tracker.init(current_frame, box)
 
         current_frame_num = self.frame_num - 1

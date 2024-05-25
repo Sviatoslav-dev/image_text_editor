@@ -131,7 +131,7 @@ class VideoController:
         dialog.exec_()
 
         self.video_model.replace_text(text, *self._resize_rect())
-        self.video_model.replace_text_revert(text, *self._resize_rect())
+        # self.video_model.replace_text_revert(text, *self._resize_rect())
 
         self.show_frame(self.video_model.get_current_frame())
 

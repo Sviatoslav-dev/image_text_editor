@@ -9,6 +9,20 @@ from photo_model import PhotoModel
 import qimage2ndarray
 
 
+class CustomTextEdit(QTextEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def keyPressEvent(self, event: QKeyEvent):
+        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+            if event.modifiers() & Qt.ShiftModifier:
+                self.insertPlainText("\n")
+            else:
+                self.parent().accept()
+        else:
+            super().keyPressEvent(event)
+
+
 class PhotoController:
     def __init__(self, window: Main, image_path, start_window):
         self.start_window = start_window
@@ -28,9 +42,11 @@ class PhotoController:
         self.window.copy_action.triggered.connect(self.set_action_copy)
         self.window.save_action.triggered.connect(self.save_image)
         self.window.close_file_action.triggered.connect(self.close_file)
+        self.window.select_whole.triggered.connect(self.select_whole)
 
     def set_action_replace(self):
         self.selected_action = ImageAction.ReplaceText
+        self.replace_text()
 
     def set_action_remove(self):
         self.selected_action = ImageAction.RemoveText
@@ -50,17 +66,18 @@ class PhotoController:
         text = ""
         dialog = QDialog(self.scene.parent())
         dialog_layout = QVBoxLayout()
-        top_line_edit = QLineEdit(parent=dialog)
+        top_line_edit = CustomTextEdit(parent=dialog)
         dialog_layout.addWidget(top_line_edit)
 
-        def on_enter():
-            nonlocal text
-            text = top_line_edit.text()
-            dialog.done(1)
+        # def on_enter():
+        #     nonlocal text
+        #     text = top_line_edit.text()
+        #     dialog.done(1)
 
-        top_line_edit.editingFinished.connect(on_enter)
+        # top_line_edit.editingFinished.connect(on_enter)
         dialog.setLayout(dialog_layout)
         dialog.exec_()
+        text = top_line_edit.toPlainText()
 
         rect = self.scene.rect.rect()
         self.image_model.replace_text(
@@ -99,3 +116,12 @@ class PhotoController:
         self.window.close()
         # start_window = Start()
         self.start_window.show()
+
+    def select_whole(self):
+        self.scene.rect.setRect(
+            0,
+            0,
+            self.image_model.img.shape[1],
+            self.image_model.img.shape[0]
+        )
+        self.update_image()

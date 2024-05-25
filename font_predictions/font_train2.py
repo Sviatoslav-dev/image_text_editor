@@ -241,8 +241,8 @@ best_epoch_results = ShowBestEpochResult(on_param='val_accuracy',
 
 callbacks_list = [learning_rate_reduction, checkpoint, best_epoch_results]
 
-epochs = 2
-batch_size = 16
+epochs = 4
+batch_size = 32
 # history = model.fit(datagen.flow(repeat(X_train, epochs, axis=0), repeat(Y_train, epochs, axis=0),
 #                                  batch_size=batch_size),
 #                     epochs=epochs, validation_data=datagen.flow(X_val, Y_val),

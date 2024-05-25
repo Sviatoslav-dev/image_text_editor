@@ -23,3 +23,9 @@ class PhotoScene(QGraphicsScene):
 
     def mouseReleaseEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         self.update_image()
+        self.rect.setRect(
+            0,
+            0,
+            0,
+            0
+        )

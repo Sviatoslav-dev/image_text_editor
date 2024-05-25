@@ -1,7 +1,9 @@
 import cv2
+import numpy as np
 
 from base_model import BaseImageModel
 import pyperclip
+from PIL import ImageFont, Image, ImageDraw
 
 
 class PhotoModel(BaseImageModel):
@@ -25,6 +27,14 @@ class PhotoModel(BaseImageModel):
         # numpy_image = annotate_text(numpy_image)
         prediction_groups, united_groups = self.find_text(img_part)
         prediction = prediction_groups[0][0][1]
+        for pp in prediction_groups[0]:
+            for i in range(5):
+                block = img_part[
+                   int(pp[1][0][1]):int(pp[1][3][1]),
+                   int(pp[1][0][0]):int(pp[1][1][0]),
+                ]
+                font = self.predict_font(block)
+                print("ffffffffffffff: ", font)
         first_block_part = img_part[
             int(prediction[0][1]):int(prediction[3][1]),
             int(prediction[0][0]):int(prediction[1][0]),
@@ -33,8 +43,9 @@ class PhotoModel(BaseImageModel):
         color = self.get_mean_color(first_block_part)
         print("color: ", color)
         print("font: ", font)
-        for box in prediction_groups[0]:
-            img_part = self.clear_text(img_part, box[1])
+        # for box in prediction_groups[0]:
+        #     img_part = self.clear_text(img_part, box[1])
+        img_part = self.clear_text(img_part, united_groups)
 
         centroid = self.find_polygon_centroid(united_groups)
         img_part = self.draw_text(
@@ -59,3 +70,55 @@ class PhotoModel(BaseImageModel):
 
         pyperclip.copy(text)
         print(prediction_groups)
+
+    def draw_text(self, image, text, x, y, h, color=(255, 255, 255), font="Arial"):
+        # print("xy", x, y)
+        # print("h = ", h)
+        # thickness = 2
+        # text_scale = cv2.getFontScaleFromHeight(cv2.FONT_HERSHEY_SIMPLEX, h, thickness)
+        # return cv2.putText(
+        #     image, text, (int(x) + 5, int(y) - 5), cv2.FONT_HERSHEY_SIMPLEX,
+        #     text_scale, (255, 255, 255), thickness, cv2.LINE_AA,
+        # )
+
+        print(text, x, y, h, color, font)
+        fontpath = f"data/fonts/{font}.ttf"
+        # font = ImageFont.truetype(fontpath, int(h * 1.3))
+        # img_pil = Image.fromarray(image)
+        # draw = ImageDraw.Draw(img_pil)
+        #
+        # ascent, descent = font.getmetrics()
+        # text_bbox = draw.textbbox((0, 0), text, font=font)
+        # text_width = text_bbox[2] - text_bbox[0]
+        # # text_height = text_bbox[3] - text_bbox[1]
+        # text_height = ascent - descent
+        # text_height *= 1.5
+        #
+        # start_x = x - text_width // 2
+        # start_y = y - text_height // 2
+        # draw.text((start_x, start_y), text, font=font, fill=color)
+        # img = np.array(img_pil)
+        img_pil = Image.fromarray(image)
+        draw = ImageDraw.Draw(img_pil)
+        font = ImageFont.truetype(fontpath, int(h * 0.95))
+
+        lines = text.split('\n')
+        line_heights = []
+
+        for line in lines:
+            bbox = draw.textbbox((0, 0), line, font=font)
+            line_height = bbox[3] - bbox[1]
+            line_heights.append(line_height)
+
+        total_height = sum(line_heights) + (len(line_heights) - 1) * 10
+
+        current_y = (img_pil.height - total_height) / 2
+
+        for line, line_height in zip(lines, line_heights):
+            bbox = draw.textbbox((0, 0), line, font=font)
+            text_width = bbox[2] - bbox[0]
+            start_x = x - text_width / 2
+            draw.text((start_x, current_y), line, font=font, fill=color)
+            current_y += line_height + 10
+        return np.array(img_pil)
+

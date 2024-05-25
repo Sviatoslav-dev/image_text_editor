@@ -1,5 +1,6 @@
 import math
 import os
+import random
 
 import cv2
 import keras_ocr
@@ -78,8 +79,16 @@ class BaseImageModel:
         new_weight = int(weight / k)
         resized_image = cv2.resize(gray_image, (new_weight, 50))
         resized_image = np.reshape(resized_image, (50, new_weight, 1))
-        if resized_image.shape[1] > 50:
-            resized_image = resized_image[:, :50]
+        if resized_image.shape[1] < 50:
+            k = resized_image.shape[1] / 50
+            new_width = int(resized_image.shape[0] / k)
+            resized_image = cv2.resize(resized_image, (int(50 / k), new_width))
+            resized_image = np.reshape(resized_image, (int(50 / k), new_width, 1))
+            resized_image = resized_image[:50, :]
+        size_x = resized_image.shape[1]
+        if size_x > 50:
+            start = random.randint(0, size_x - 50)
+            resized_image = resized_image[:, start:start + 50]
         prediction = self.fonts_model.predict(np.array([resized_image]))[0]
         font_num = np.argmax(prediction)
         return fonts[int(font_num)]
@@ -127,19 +136,15 @@ class BaseImageModel:
         # return int(average_color[0]), int(average_color[1]), int(average_color[2])
         gray_region = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        # Обчислюємо гістограму сірих тонів
         hist = cv2.calcHist([gray_region], [0], None, [256], [0, 256])
         hist_norm = hist.ravel() / hist.sum()
         q = np.cumsum(hist_norm)
 
-        # Визначаємо порогове значення за методом Otsu
         optimal_threshold = np.argmax((q * (1 - q) * (np.arange(256) - q * np.arange(256)) ** 2))
 
-        # Визначаємо, чи використовувати інверсію
         thresh_type = cv2.THRESH_BINARY_INV if optimal_threshold < 128 else cv2.THRESH_BINARY
         _, mask = cv2.threshold(gray_region, optimal_threshold, 255, thresh_type | cv2.THRESH_OTSU)
 
-        # Визначаємо середній колір тексту
         mask_inv = cv2.bitwise_not(mask)
         text_pixels = cv2.bitwise_and(image, image, mask=mask_inv)
         mean_color = cv2.mean(text_pixels, mask=mask_inv)[:3]
@@ -155,7 +160,7 @@ class BaseImageModel:
         pts = pts.reshape((-1, 1, 2))
         cv2.fillPoly(mask, [pts], 255)
 
-        image = cv2.inpaint(image, mask, 3, cv2.INPAINT_NS)
+        image = cv2.inpaint(image, mask, 11, cv2.INPAINT_TELEA)
         return image
 
     def draw_text(self, image, text, x, y, h, color=(255, 255, 255), font="Arial"):
@@ -185,7 +190,7 @@ class BaseImageModel:
         start_y = y - text_height // 2
         draw.text((start_x, start_y), text, font=font, fill=color)
         img = np.array(img_pil)
-        return img
+        return np.array(img)
 
     def get_box_height(self, box):
         return int((box[1][3][1] - box[1][0][1]))  # * 0.8)
