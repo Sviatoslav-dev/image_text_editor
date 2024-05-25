@@ -4,7 +4,6 @@ import pyperclip
 import pytesseract
 
 from base_model import BaseImageModel
-from east_text_detection import find_text_by_east
 
 
 class VideoModel(BaseImageModel):
@@ -12,9 +11,8 @@ class VideoModel(BaseImageModel):
         super().__init__()
         self.video_capture = cv2.VideoCapture()
 
-        fps = 30
-        self.setup_camera(fps, video_path)
-        self.fps = fps
+        self.fps = None
+        self.setup_video(video_path)
         self.frame_num = -1
         self.frames = []
         self.frames_count = self.get_frames_count()
@@ -30,13 +28,9 @@ class VideoModel(BaseImageModel):
                 break
             self.frames.append(frame)
 
-    def setup_camera(self, fps, path):
+    def setup_video(self, path):
         self.video_capture.open(path)
-
-        fps = self.video_capture.get(cv2.CAP_PROP_FPS)
-        frame_count = int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
-        duration = frame_count / fps
-        print("duration", duration)
+        self.fps = self.video_capture.get(cv2.CAP_PROP_FPS)
 
     def replace_text(self, new_text, x, y, weight, height):
         current_frame = self.get_current_frame()

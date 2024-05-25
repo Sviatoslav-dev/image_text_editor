@@ -9,7 +9,7 @@ import pyperclip
 from PIL import ImageFont, Image, ImageDraw
 
 
-class PhotoModel(BaseImageModel):
+class ImageModel(BaseImageModel):
     def __init__(self):
         super().__init__()
         self.img = None

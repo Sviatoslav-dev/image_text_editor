@@ -4,9 +4,10 @@ import numpy as np
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
+from base_controller import BaseController
 from image_actions import ImageAction
-from photo_editor import Main
-from photo_model import PhotoModel
+from image_editor import ImageEditor
+from image_model import ImageModel
 import qimage2ndarray
 
 from translation_dialog import TranslationDialog
@@ -26,18 +27,17 @@ class CustomTextEdit(QTextEdit):
             super().keyPressEvent(event)
 
 
-class PhotoController:
-    def __init__(self, window: Main, image_path, start_window):
-        self.start_window = start_window
+class ImageController(BaseController):
+    def __init__(self, window: ImageEditor, image_path, start_window):
+        super().__init__(window, image_path, start_window)
         self.selected_action = ImageAction.ReplaceText
-        self.window = window
         self.scene = window.scene
         self.scene.update_image = self.update_image
-        self.image_model = PhotoModel()
+        self.model = ImageModel()
 
-        self.image_model.read_image(image_path)
+        self.model.read_image(image_path)
         self.scene.q_pixmap.setPixmap((QPixmap.fromImage(
-            qimage2ndarray.array2qimage(cv2.cvtColor(self.image_model.img, cv2.COLOR_BGR2RGB)))))
+            qimage2ndarray.array2qimage(cv2.cvtColor(self.model.img, cv2.COLOR_BGR2RGB)))))
         window.show()
 
         self.window.replace_action.triggered.connect(self.set_action_replace)
@@ -62,7 +62,7 @@ class PhotoController:
     def set_action_translate(self):
         dialog = TranslationDialog()
         dialog.exec_()
-        self.image_model.translate_option = dialog.selected_option
+        self.model.translate_option = dialog.selected_option
         self.selected_action = ImageAction.TranslateText
 
     def update_image(self):
@@ -92,27 +92,27 @@ class PhotoController:
         text = top_line_edit.toPlainText()
 
         rect = self.scene.rect.rect()
-        self.image_model.replace_text(
+        self.model.replace_text(
             text, int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()))
 
         print(self.scene.items())
         self.scene.q_pixmap.setPixmap(QPixmap.fromImage(
-            qimage2ndarray.array2qimage(cv2.cvtColor(self.image_model.img, cv2.COLOR_BGR2RGB))))
+            qimage2ndarray.array2qimage(cv2.cvtColor(self.model.img, cv2.COLOR_BGR2RGB))))
 
     def remove_text(self):
         print(self.scene.rect.rect().width(), self.scene.rect.rect().height())
         rect = self.scene.rect.rect()
-        self.image_model.remove_text(
+        self.model.remove_text(
             int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()))
 
         print(self.scene.items())
         self.scene.q_pixmap.setPixmap(QPixmap.fromImage(
-            qimage2ndarray.array2qimage(cv2.cvtColor(self.image_model.img, cv2.COLOR_BGR2RGB))))
+            qimage2ndarray.array2qimage(cv2.cvtColor(self.model.img, cv2.COLOR_BGR2RGB))))
 
     def copy_text(self):
         print(self.scene.rect.rect().width(), self.scene.rect.rect().height())
         rect = self.scene.rect.rect()
-        self.image_model.copy_text(
+        self.model.copy_text(
             int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()))
 
     def save_image(self):
@@ -133,26 +133,26 @@ class PhotoController:
         self.scene.rect.setRect(
             0,
             0,
-            self.image_model.img.shape[1],
-            self.image_model.img.shape[0]
+            self.model.img.shape[1],
+            self.model.img.shape[0]
         )
         self.update_image()
 
     def translate(self):
         print(self.scene.rect.rect().width(), self.scene.rect.rect().height())
         rect = self.scene.rect.rect()
-        languges = self.image_model.translate_option
-        text = self.image_model.translate_text(
+        languges = self.model.translate_option
+        text = self.model.translate_text(
             int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()), *languges
         )
-        self.image_model.replace_text(
+        self.model.replace_text(
             text, int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()))
 
         print(self.scene.items())
         self.scene.q_pixmap.setPixmap(QPixmap.fromImage(
-            qimage2ndarray.array2qimage(cv2.cvtColor(self.image_model.img, cv2.COLOR_BGR2RGB))))
+            qimage2ndarray.array2qimage(cv2.cvtColor(self.model.img, cv2.COLOR_BGR2RGB))))
 
     def undo(self):
-        self.image_model.img = np.copy(self.image_model.start_image)
+        self.model.img = np.copy(self.model.start_image)
         self.scene.q_pixmap.setPixmap(QPixmap.fromImage(
-            qimage2ndarray.array2qimage(cv2.cvtColor(self.image_model.img, cv2.COLOR_BGR2RGB))))
+            qimage2ndarray.array2qimage(cv2.cvtColor(self.model.img, cv2.COLOR_BGR2RGB))))

@@ -5,8 +5,8 @@ from PySide2.QtCore import QSize, QCoreApplication
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
-from photo_controller import PhotoController
-from photo_editor import Main
+from image_controller import ImageController
+from image_editor import ImageEditor
 from video_controller import VideoController
 from video_editor import VideoPlayer
 
@@ -78,7 +78,7 @@ class Start(QWidget):
         _translate = QCoreApplication.translate
         self.setWindowTitle(_translate("Editor", "Image Editor"))
         self.title.setText(_translate("Editor",
-                                      "<html><head/><body><p align=\"center\"><span style=\" font-size:16pt; font-weight:600; color:#aa007f;\">Start from choosing your files</span></p></body></html>"))
+                                      "<html><head/><body><p align=\"center\"><span style=\" font-size:16pt; font-weight:600; color:#aa007f;\">Slelect an image or a video</span></p></body></html>"))
         self.browse.setText(_translate("Editor", "Browse here"))
 
     def open_file(self):
@@ -92,9 +92,9 @@ class Start(QWidget):
             print(self.files)
             self.hide()
             if file_path.endswith(('.jpg', '.jpeg', '.png', '.bmp')):
-                window = Main()
+                window = ImageEditor()
                 # window.show()
-                PhotoController(
+                ImageController(
                     window,
                     file_path,
                     self,

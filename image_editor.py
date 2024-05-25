@@ -3,10 +3,10 @@ import sys
 from PySide2.QtWidgets import *
 
 from editor_window import EditorWindow
-from photo_scene import PhotoScene
+from image_scene import ImageScene
 
 
-class Main(EditorWindow):
+class ImageEditor(EditorWindow):
     def __init__(self):
         # initialize
         super().__init__()
@@ -16,7 +16,7 @@ class Main(EditorWindow):
         # self.gv = self.findChild(QGraphicsView, "gv")
         # self.scene = QGraphicsScene()
         pixmap_item = QGraphicsPixmapItem()
-        self.scene = PhotoScene(pixmap_item=pixmap_item)
+        self.scene = ImageScene(pixmap_item=pixmap_item)
         # self.scene.mouseReleaseEvent
         self.scene.addItem(pixmap_item)
         # pixmap_item.setPixmap(self.img)
@@ -65,6 +65,6 @@ if __name__ == "__main__":
     # window = Start()
     # window = Main(["C:/Users/slavi/PycharmProjects/image_text_editor/ui/landscape.jpg"])
     # window = Main(["C:/Users/slavi/PycharmProjects/image_text_editor/ui/landscape.jpg"])
-    window = Main()
+    window = ImageEditor()
     window.show()
     app.exec_()

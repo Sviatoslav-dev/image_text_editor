@@ -2,16 +2,16 @@ from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 
-class PhotoScene(QGraphicsScene):
+class ImageScene(QGraphicsScene):
     def __init__(self, parent=None, pixmap_item=None):
-        super(PhotoScene, self).__init__(parent)
+        super(ImageScene, self).__init__(parent)
         self.q_pixmap: QPixmap = pixmap_item
         self.update_image = None
 
     def mousePressEvent(self, event):
         print(event.scenePos().x(), event.scenePos().y())
         self.rect.setRect(event.scenePos().x(), event.scenePos().y(), 0, 0)
-        super(PhotoScene, self).mousePressEvent(event)
+        super(ImageScene, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         self.rect.setRect(

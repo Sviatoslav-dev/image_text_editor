@@ -110,32 +110,6 @@ class BaseImageModel:
         return tuple(dominant)
 
     def get_mean_color(self, image):
-        # mask = self._segmentate_text(image)
-        # mean = cv2.mean(image, mask)
-        # return int(mean[0]), int(mean[1]), int(mean[2])
-        # gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        #
-        # mean_brightness = np.mean(gray_image)
-        #
-        # # _, binary_image = cv2.threshold(gray_image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-        # text_is_dark = mean_brightness > 128
-        #
-        # if mean_brightness > 128:
-        #     _, binary_image = cv2.threshold(gray_image, 0, 255,
-        #                                     cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-        # else:
-        #     _, binary_image = cv2.threshold(gray_image, 0, 255,
-        #                                     cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-        #
-        # cv2.imshow("rrr", binary_image)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-        #
-        # masked_text_region = cv2.bitwise_and(image, image, mask=binary_image)
-        # mask_value = 0 if text_is_dark else 255
-        # pixels = masked_text_region[binary_image == mask_value]
-        # average_color = tuple(np.mean(pixels, axis=0)) if len(pixels) > 0 else (0, 0, 0)
-        # return int(average_color[0]), int(average_color[1]), int(average_color[2])
         gray_region = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         hist = cv2.calcHist([gray_region], [0], None, [256], [0, 256])
