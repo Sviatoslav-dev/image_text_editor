@@ -139,14 +139,20 @@ class VideoController(BaseController):
         dialog.setLayout(dialog_layout)
         dialog.exec_()
 
-        self.model.replace_text(text, *self._resize_rect())
+        success = self.model.replace_text(text, *self._resize_rect())
+        if not success:
+            self.show_not_found_message()
         # self.video_model.replace_text_revert(text, *self._resize_rect())
 
         self.show_frame(self.model.get_current_frame())
 
     def remove_text(self):
-        self.model.remove_text(*self._resize_rect())
-        self.model.remove_text_revert(*self._resize_rect())
+        success = self.model.remove_text(*self._resize_rect())
+        if not success:
+            self.show_not_found_message()
+        success = self.model.remove_text_revert(*self._resize_rect())
+        if not success:
+            self.show_not_found_message()
         self.show_frame(self.model.get_current_frame())
 
     def copy_text(self):
@@ -193,7 +199,11 @@ class VideoController(BaseController):
     def translate(self):
         languges = self.model.translate_option
         text = self.model.translate_text(*self._resize_rect(), *languges)
-        self.model.replace_text(text, *self._resize_rect())
+        if text is None:
+            self.show_not_found_message()
+        success = self.model.replace_text(text, *self._resize_rect())
+        if not success:
+            self.show_not_found_message()
 
         self.show_frame(self.model.get_current_frame())
 

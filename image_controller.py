@@ -92,8 +92,11 @@ class ImageController(BaseController):
         text = top_line_edit.toPlainText()
 
         rect = self.scene.rect.rect()
-        self.model.replace_text(
+        success = self.model.replace_text(
             text, int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()))
+
+        if not success:
+            self.show_not_found_message()
 
         print(self.scene.items())
         self.scene.q_pixmap.setPixmap(QPixmap.fromImage(
@@ -102,8 +105,10 @@ class ImageController(BaseController):
     def remove_text(self):
         print(self.scene.rect.rect().width(), self.scene.rect.rect().height())
         rect = self.scene.rect.rect()
-        self.model.remove_text(
+        success = self.model.remove_text(
             int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()))
+        if not success:
+            self.show_not_found_message()
 
         print(self.scene.items())
         self.scene.q_pixmap.setPixmap(QPixmap.fromImage(
@@ -145,8 +150,13 @@ class ImageController(BaseController):
         text = self.model.translate_text(
             int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()), *languges
         )
-        self.model.replace_text(
+        if text is None:
+            self.show_not_found_message()
+        success = self.model.replace_text(
             text, int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()))
+
+        if not success:
+            self.show_not_found_message()
 
         print(self.scene.items())
         self.scene.q_pixmap.setPixmap(QPixmap.fromImage(

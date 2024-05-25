@@ -37,6 +37,8 @@ class VideoModel(BaseImageModel):
 
         img_part = current_frame[y:y + height, x:x + weight]
         predictions, united_groups = self.find_text(img_part)
+        if len(predictions[0]) == 0:
+            return False
         prediction = predictions[0][0][1]
         first_block_part = img_part[
                            int(prediction[0][1]):int(prediction[3][1]),
@@ -115,10 +117,13 @@ class VideoModel(BaseImageModel):
             self.frames[current_frame_num] = current_frame
 
             current_frame_num -= 1
+        return True
 
     def translate_text(self, x, y, weight, height, src="en", dest="uk"):
         img_part = self.get_current_frame()[y:y + height, x:x + weight]
         prediction_groups, united_groups = self.find_text(img_part)
+        if len(prediction_groups[0]) == 0:
+            return None
         first_block_part = img_part[
                            int(united_groups[0][1]):int(united_groups[3][1]),
                            int(united_groups[0][0]):int(united_groups[1][0]),
@@ -133,6 +138,8 @@ class VideoModel(BaseImageModel):
 
         img_part = current_frame[y:y + height, x:x + weight]
         predictions, united_groups = self.find_text(img_part)
+        if len(predictions[0]) == 0:
+            return False
 
         box = self._polygon_to_box(united_groups)
         box = (
@@ -159,12 +166,15 @@ class VideoModel(BaseImageModel):
             self.frames[current_frame_num] = current_frame
 
             current_frame_num += 1
+        return True
 
     def remove_text_revert(self, x, y, weight, height):
         current_frame = self.frames[self.frame_num - 1]
 
         img_part = current_frame[y:y + height, x:x + weight]
         predictions, united_groups = self.find_text(img_part)
+        if len(predictions[0]) == 0:
+            return False
 
         box = self._polygon_to_box(united_groups)
         box = (
@@ -191,6 +201,7 @@ class VideoModel(BaseImageModel):
             self.frames[current_frame_num] = current_frame
 
             current_frame_num -= 1
+        return True
 
     def get_frames_count(self):
         return int(self.video_capture.get(cv2.CAP_PROP_FRAME_COUNT)) - 1

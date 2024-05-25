@@ -31,6 +31,8 @@ class ImageModel(BaseImageModel):
         img_part = self.img[y:y + height, x:x + weight]
         # numpy_image = annotate_text(numpy_image)
         prediction_groups, united_groups = self.find_text(img_part)
+        if len(prediction_groups[0]) == 0:
+            return False
         prediction = prediction_groups[0][0][1]
         # for pp in prediction_groups[0]:
         #     for i in range(5):
@@ -59,10 +61,13 @@ class ImageModel(BaseImageModel):
             self.get_box_height(prediction_groups[0][0]), color=color, font=font,
         )
         self.img[y:y + height, x:x + weight] = img_part
+        return True
 
     def translate_text(self, x, y, weight, height, src="en", dest="uk"):
         img_part = self.img[y:y + height, x:x + weight]
         prediction_groups, united_groups = self.find_text(img_part)
+        if len(prediction_groups[0]) == 0:
+            return None
         first_block_part = img_part[
                            int(united_groups[0][1]):int(united_groups[3][1]),
                            int(united_groups[0][0]):int(united_groups[1][0]),
@@ -75,8 +80,11 @@ class ImageModel(BaseImageModel):
     def remove_text(self, x, y, weight, height):
         img_part = self.img[y:y + height, x:x + weight]
         prediction_groups, united_groups = self.find_text(img_part)
+        if len(prediction_groups[0]) == 0:
+            return False
         img_part = self.clear_text(img_part, prediction_groups[0][0][1])
         self.img[y:y + height, x:x + weight] = img_part
+        return True
 
     def read_text(self, x, y, weight, height):
         img_part = self.img[y:y + height, x:x + weight]
