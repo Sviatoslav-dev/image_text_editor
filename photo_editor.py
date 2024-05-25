@@ -27,6 +27,8 @@ class Main(EditorWindow):
         self.replace_action = QAction("Replace text", self)
         self.replace_action.setCheckable(True)
         self.replace_action.setChecked(True)
+        self.translate_text = QAction("Translate", self)
+        self.translate_text.setCheckable(True)
         self.remove_action = QAction("Remove text", self)
         self.remove_action.setCheckable(True)
         self.copy_action = QAction("Copy text", self)
@@ -36,10 +38,13 @@ class Main(EditorWindow):
         self.close_file_action = QAction("Close file", self)
 
         self.tools_group.addAction(self.replace_action)
+        self.tools_group.addAction(self.translate_text)
         self.tools_group.addAction(self.remove_action)
         self.tools_group.addAction(self.copy_action)
 
         self.toolbar.addAction(self.replace_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.translate_text)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.remove_action)
         self.toolbar.addSeparator()

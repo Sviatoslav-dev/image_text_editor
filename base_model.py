@@ -5,6 +5,7 @@ import random
 import cv2
 import keras_ocr
 import numpy as np
+from googletrans import Translator
 from keras.models import load_model
 
 from PIL import ImageFont, Image, ImageDraw
@@ -21,6 +22,7 @@ class BaseImageModel:
 
         model_name = os.path.join(MODEL_DIR, "font.model.02.keras")
         self.fonts_model = load_model(model_name)
+        self.translator = Translator()
 
     def _polygon_to_box(self, polygon):
         min_x, min_y = float('inf'), float('inf')
@@ -223,12 +225,13 @@ class BaseImageModel:
         current_line = []
         current_base_y = (predictions[0][1][0][1] + predictions[0][1][2][1]) / 2
 
-        tolerance = 5
+        tolerance = 20
 
         for text, box in predictions:
             base_y = (box[0][1] + box[2][1]) / 2
             if abs(base_y - current_base_y) > tolerance:
                 current_line = sorted(current_line, key=lambda x: x[1])
+                print([word[0] for word in current_line])
                 lines.append(" ".join([word[0] for word in current_line]))
                 current_line = []
                 current_base_y = base_y

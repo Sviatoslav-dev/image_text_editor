@@ -38,6 +38,7 @@ class PhotoController:
         window.show()
 
         self.window.replace_action.triggered.connect(self.set_action_replace)
+        self.window.translate_text.triggered.connect(self.set_action_translate)
         self.window.remove_action.triggered.connect(self.set_action_remove)
         self.window.copy_action.triggered.connect(self.set_action_copy)
         self.window.save_action.triggered.connect(self.save_image)
@@ -54,11 +55,15 @@ class PhotoController:
     def set_action_copy(self):
         self.selected_action = ImageAction.CopyText
 
+    def set_action_translate(self):
+        self.selected_action = ImageAction.TranslateText
+
     def update_image(self):
         {
             ImageAction.ReplaceText: self.replace_text,
             ImageAction.RemoveText: self.remove_text,
             ImageAction.CopyText: self.copy_text,
+            ImageAction.TranslateText: self.translate,
         }[self.selected_action]()
 
     def replace_text(self):
@@ -125,3 +130,18 @@ class PhotoController:
             self.image_model.img.shape[0]
         )
         self.update_image()
+
+    def translate(self):
+        print(self.scene.rect.rect().width(), self.scene.rect.rect().height())
+        rect = self.scene.rect.rect()
+        text = self.image_model.read_text(
+            int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()))
+        text = self.image_model.translator.translate(text, src="en", dest="uk").text
+
+        rect = self.scene.rect.rect()
+        self.image_model.replace_text(
+            text, int(rect.x()), int(rect.y()), int(rect.width()), int(rect.height()))
+
+        print(self.scene.items())
+        self.scene.q_pixmap.setPixmap(QPixmap.fromImage(
+            qimage2ndarray.array2qimage(cv2.cvtColor(self.image_model.img, cv2.COLOR_BGR2RGB))))

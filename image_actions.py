@@ -5,3 +5,4 @@ class ImageAction(Enum):
     ReplaceText = auto()
     RemoveText = auto()
     CopyText = auto()
+    TranslateText = auto()

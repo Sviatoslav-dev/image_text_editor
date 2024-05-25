@@ -27,14 +27,14 @@ class PhotoModel(BaseImageModel):
         # numpy_image = annotate_text(numpy_image)
         prediction_groups, united_groups = self.find_text(img_part)
         prediction = prediction_groups[0][0][1]
-        for pp in prediction_groups[0]:
-            for i in range(5):
-                block = img_part[
-                   int(pp[1][0][1]):int(pp[1][3][1]),
-                   int(pp[1][0][0]):int(pp[1][1][0]),
-                ]
-                font = self.predict_font(block)
-                print("ffffffffffffff: ", font)
+        # for pp in prediction_groups[0]:
+        #     for i in range(5):
+        #         block = img_part[
+        #            int(pp[1][0][1]):int(pp[1][3][1]),
+        #            int(pp[1][0][0]):int(pp[1][1][0]),
+        #         ]
+        #         font = self.predict_font(block)
+        #         print("ffffffffffffff: ", font)
         first_block_part = img_part[
             int(prediction[0][1]):int(prediction[3][1]),
             int(prediction[0][0]):int(prediction[1][0]),
@@ -61,15 +61,18 @@ class PhotoModel(BaseImageModel):
         img_part = self.clear_text(img_part, prediction_groups[0][0][1])
         self.img[y:y + height, x:x + weight] = img_part
 
-    def copy_text(self, x, y, weight, height):
+    def read_text(self, x, y, weight, height):
         img_part = self.img[y:y + height, x:x + weight]
         prediction_groups, united_groups = self.find_text(img_part)
         lines = self.group_text_by_lines(prediction_groups[0])
 
         text = '\n'.join(lines)
 
+        return text
+
+    def copy_text(self, x, y, weight, height):
+        text = self.read_text(x, y, weight, height)
         pyperclip.copy(text)
-        print(prediction_groups)
 
     def draw_text(self, image, text, x, y, h, color=(255, 255, 255), font="Arial"):
         # print("xy", x, y)
