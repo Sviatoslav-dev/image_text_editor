@@ -2,7 +2,7 @@ import sys
 
 from PySide2 import QtCore, QtWidgets
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QAction
+from PySide2.QtWidgets import QAction, QSlider
 
 from editor_window import EditorWindow
 from video_controller import VideoController
@@ -13,6 +13,11 @@ class VideoPlayer(EditorWindow):
 
     def __init__(self, width=960, height=540, fps=30):
         super().__init__()
+        self.slider = QSlider(self)
+        self.slider.setMaximum(360)
+        self.slider.setOrientation(Qt.Horizontal)
+        self.slider.setObjectName("slider")
+        self.vbox1.addWidget(self.slider)
 
         self.video_size = QtCore.QSize(width, height)
         self.video_size.width()
