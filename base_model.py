@@ -1,16 +1,12 @@
-import math
 import os
 import random
 
 import cv2
 import keras_ocr
 import numpy as np
+from PIL import ImageFont, Image, ImageDraw
 from googletrans import Translator
 from keras.models import load_model
-
-from PIL import ImageFont, Image, ImageDraw
-
-from font_predictions.fonts import fonts
 
 
 class BaseImageModel:
@@ -64,6 +60,23 @@ class BaseImageModel:
     def find_text(self, image):
         predictions = self.pipeline.recognize([image])
         return predictions, self._unite_predictions(predictions)
+        # data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
+        #
+        # predictions = []
+        # for i in range(len(data['level'])):
+        #     text = data['text'][i].strip()
+        #     if text:
+        #         x, y, w, h = data['left'][i], data['top'][i], data['width'][i], data['height'][
+        #             i]
+        #         box = [
+        #             [x, y],
+        #             [x + w, y],
+        #             [x + w, y + h],
+        #             [x, y + h]
+        #         ]
+        #         predictions.append([text, np.array(box)])
+        #
+        # return [predictions], self._unite_predictions([predictions])
 
     def calculate_box_height(self, box):
         points = np.array(box)
@@ -93,21 +106,7 @@ class BaseImageModel:
             resized_image = resized_image[:, start:start + 50]
         prediction = self.fonts_model.predict(np.array([resized_image]))[0]
         font_num = np.argmax(prediction)
-        return fonts[int(font_num)]
-
-    def find_dominant_color(self, image, mask=None, k=3):
-        if mask is not None:
-            image = cv2.bitwise_and(image, image, mask=mask)
-
-        pixels = np.float32(image.reshape(-1, 3))
-
-        pixels = pixels[np.any(pixels != [0, 0, 0], axis=1)]
-
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 0.1)
-        _, labels, palette = cv2.kmeans(pixels, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-        _, counts = np.unique(labels, return_counts=True)
-        dominant = palette[np.argmax(counts)]
-        return tuple(dominant)
+        return "timesnewromanpsmt"#fonts[int(font_num)]
 
     def get_mean_color(self, image):
         gray_region = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -124,9 +123,9 @@ class BaseImageModel:
         mask_inv = cv2.bitwise_not(mask)
         text_pixels = cv2.bitwise_and(image, image, mask=mask_inv)
         mean_color = cv2.mean(text_pixels, mask=mask_inv)[:3]
-        # cv2.imshow('Text Region', text_pixels)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+        cv2.imshow('Text Region', text_pixels)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
         # mean_color = self.find_dominant_color(image, mask=mask_inv)
         return int(mean_color[0]), int(mean_color[1]), int(mean_color[2])
 
@@ -192,27 +191,3 @@ class BaseImageModel:
         y_mid = int((y1 + y2) / 2)
         return x_mid, y_mid
 
-    def group_text_by_lines(self, predictions):
-        predictions = sorted(predictions, key=lambda x: (x[1][0][1] + x[1][2][1]) / 2)
-
-        lines = []
-        current_line = []
-        current_base_y = (predictions[0][1][0][1] + predictions[0][1][2][1]) / 2
-
-        tolerance = 20
-
-        for text, box in predictions:
-            base_y = (box[0][1] + box[2][1]) / 2
-            if abs(base_y - current_base_y) > tolerance:
-                current_line = sorted(current_line, key=lambda x: x[1])
-                print([word[0] for word in current_line])
-                lines.append(" ".join([word[0] for word in current_line]))
-                current_line = []
-                current_base_y = base_y
-            current_line.append((text, box[0][0]))
-
-        if current_line:
-            current_line = sorted(current_line, key=lambda x: x[1])
-            lines.append(" ".join([word[0] for word in current_line]))
-
-        return lines

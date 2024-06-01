@@ -36,15 +36,13 @@ class EditorWindow(QWidget):
         brush = QBrush(QColor(240, 240, 240))
         brush.setStyle(Qt.SolidPattern)
         self.gv.setBackgroundBrush(brush)
-        self.gv.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignTop)
+        # self.gv.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignTop)
+        self.gv.setAlignment(Qt.AlignCenter)
         self.gv.setObjectName("gv")
         self.vbox1.addWidget(self.gv)
-        self.hbox5 = QHBoxLayout()
-        self.hbox5.setContentsMargins(200, -1, 200, -1)
-        self.hbox5.setSpacing(100)
-        self.hbox5.setObjectName("hbox5")
-        self.vbox1.addLayout(self.hbox5)
+        self.hbox.addStretch()
         self.hbox.addLayout(self.vbox1)
+        self.hbox.addStretch()
         self.vbox = QVBoxLayout()
         self.vbox.setContentsMargins(0, -1, 0, -1)
         self.vbox.setSpacing(0)
@@ -85,7 +83,7 @@ class EditorWindow(QWidget):
                        min-height: 40px;
                    }
                """)
-        self.vbox3.addWidget(self.toolbar)
+        self.vbox3.addWidget(self.toolbar, alignment=Qt.AlignRight)
 
         self.tools_group = QActionGroup(self)
         self.tools_group.setExclusive(True)

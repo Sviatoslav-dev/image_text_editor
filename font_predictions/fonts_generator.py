@@ -50,7 +50,7 @@ def create_text_image(text, font_path, font_size, num):
     image.crop((100, 0, 150, 50)).save("../data/fonts_data/" + font_path + f"/text_{num}_3.png")
 
 
-fonts_count = 2000
+fonts_count = 10000
 
 for font_name in fonts:
     print(font_name)

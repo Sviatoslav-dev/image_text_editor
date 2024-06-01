@@ -1,25 +1,19 @@
-import matplotlib.pyplot as plt
-import itertools
 import os
 from pathlib import Path
-from platform import python_version
-from PIL import Image
 
-import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+from PIL import Image
 from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint
 from keras.layers import Dense, Dropout, Flatten, Conv2D, BatchNormalization, Activation, \
     Input, MaxPooling2D
-from keras.models import Model, load_model
+from keras.models import Model
 from keras.optimizer_v2.adam import Adam
 from keras.utils.np_utils import to_categorical
 from keras_preprocessing.image import ImageDataGenerator
 from numpy import asarray
-from six.moves import cPickle as pickle
-from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import train_test_split
 from numpy import repeat
+from sklearn.model_selection import train_test_split
 
 from font_predictions.fonts import fonts
 
@@ -241,8 +235,8 @@ best_epoch_results = ShowBestEpochResult(on_param='val_accuracy',
 
 callbacks_list = [learning_rate_reduction, checkpoint, best_epoch_results]
 
-epochs = 4
-batch_size = 32
+epochs = 1
+batch_size = 64
 # history = model.fit(datagen.flow(repeat(X_train, epochs, axis=0), repeat(Y_train, epochs, axis=0),
 #                                  batch_size=batch_size),
 #                     epochs=epochs, validation_data=datagen.flow(X_val, Y_val),

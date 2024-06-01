@@ -85,6 +85,7 @@ class VideoController(BaseController):
             return False
 
         self.show_frame(frame)
+        self.window.time_code_label.setText(self.model.get_time())
         if not self.first_stop:
             self.play_pause()
             self.first_stop = True
@@ -112,6 +113,7 @@ class VideoController(BaseController):
             if self.pause and self.first_stop:
                 ret, frame = self.model.next_frame()
                 self.show_frame(frame)
+                self.window.time_code_label.setText(self.model.get_time())
 
     def _resize_rect(self):
         current_frame = self.model.get_current_frame()

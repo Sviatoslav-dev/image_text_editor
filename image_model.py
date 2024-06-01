@@ -34,14 +34,14 @@ class ImageModel(BaseImageModel):
 
     def read_image(self, path):
         self.img = cv2.imread(path, 1)
-        if self.img.shape[0] / self.img.shape[1] < 0.76:
-            self.img_width = 1100
-            self.img_height = int(self.img_width * self.img.shape[0] / self.img.shape[1])
-        else:
-            self.img_height = 700
-            self.img_width = int(self.img_height * self.img.shape[1] / self.img.shape[0])
-
-        self.img = cv2.resize(self.img, (self.img_width, self.img_height))
+        # if self.img.shape[0] / self.img.shape[1] < 0.76:
+        #     self.img_width = 1100
+        #     self.img_height = int(self.img_width * self.img.shape[0] / self.img.shape[1])
+        # else:
+        #     self.img_height = 700
+        #     self.img_width = int(self.img_height * self.img.shape[1] / self.img.shape[0])
+        #
+        # self.img = cv2.resize(self.img, (self.img_width, self.img_height))
         self.start_image = np.copy(self.img)
 
     def replace_text(self, new_text, x, y, weight, height):

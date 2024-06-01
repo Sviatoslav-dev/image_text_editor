@@ -50,10 +50,10 @@ class VideoModel(BaseImageModel):
 
         start_box = self._polygon_to_box(united_groups)
         start_box = (
-            x + start_box[0],
-            y + start_box[1],
-            start_box[2],
-            start_box[3],
+            x + start_box[0] - 10,
+            y + start_box[1] - 10,
+            start_box[2] + 10,
+            start_box[3] + 10,
         )
         tracker = cv2.legacy.TrackerCSRT_create()
         tracker.init(current_frame, start_box)
@@ -79,7 +79,7 @@ class VideoModel(BaseImageModel):
                 current_frame = self.draw_text(
                     current_frame, new_text,
                     centroid[0], centroid[1],
-                    text_height, color=color, font=font,
+                    text_height, color=color, font=font, width=box[3] - box[1],
                 )
             self.frames[current_frame_num] = current_frame
 
@@ -151,6 +151,12 @@ class VideoModel(BaseImageModel):
         tracker = cv2.legacy.TrackerCSRT_create()
         tracker.init(current_frame, box)
 
+        def draw_boxes(frame, bbox):
+            if success:
+                p1 = (int(bbox[0]), int(bbox[1]))
+                p2 = (int(bbox[0] + bbox[2]), int(bbox[1] + bbox[3]))
+                cv2.rectangle(frame, p1, p2, (0, 255, 0), 2, 1)
+
         current_frame_num = self.frame_num
         while current_frame_num <= self.frames_count:
             print("current_frame_num: ", current_frame_num)
@@ -161,8 +167,9 @@ class VideoModel(BaseImageModel):
                 break
 
             prediction = self.convert_box_to_polygon(box)
+            draw_boxes(current_frame, box)
 
-            current_frame = self.clear_text(current_frame, prediction)
+            # current_frame = self.clear_text(current_frame, prediction)
             self.frames[current_frame_num] = current_frame
 
             current_frame_num += 1
@@ -227,6 +234,10 @@ class VideoModel(BaseImageModel):
 
     def get_current_frame(self):
         return self.frames[self.frame_num]
+
+    def get_time(self):
+        current_time = self.frame_num / self.fps
+        return f"{int(current_time // 3600):02}:{int((current_time % 3600) // 60):02}:{int(current_time % 60):02}"
 
     def convert_box_to_polygon(self, box):
         startX, startY, sizeX, sizeY = box
