@@ -1,12 +1,29 @@
-import copy
-
 import cv2
 import numpy as np
+import pyperclip
 import pytesseract
+import requests
+from PIL import ImageFont, Image, ImageDraw
 
 from base_model import BaseImageModel
-import pyperclip
-from PIL import ImageFont, Image, ImageDraw
+
+
+def translate_deepl(text, target_lang='UK'):
+    api_key = '5d781a78-1aef-4f04-be1d-ba831c57c183:fx'
+    url = 'https://api-free.deepl.com/v2/translate'
+
+    params = {
+        'auth_key': api_key,
+        'text': text,
+        'target_lang': target_lang
+    }
+
+    response = requests.post(url, data=params)
+
+    if response.status_code == 200:
+        return response.json()['translations'][0]['text']
+    else:
+        raise Exception(f"Error: {response.status_code}, {response.text}")
 
 
 class ImageModel(BaseImageModel):
@@ -68,13 +85,14 @@ class ImageModel(BaseImageModel):
         prediction_groups, united_groups = self.find_text(img_part)
         if len(prediction_groups[0]) == 0:
             return None
-        first_block_part = img_part[
+        block_with_text = img_part[
                            int(united_groups[0][1]):int(united_groups[3][1]),
                            int(united_groups[0][0]):int(united_groups[1][0]),
                            ]
-        text = pytesseract.image_to_string(first_block_part, lang='eng+ukr',
+        text = pytesseract.image_to_string(block_with_text, lang='eng+ukr',
                                            config="--oem 1 --psm 6").strip()
-        text = self.translator.translate(text, src=src, dest=dest).text
+        print("text: ", text)
+        text = translate_deepl(text)
         return text
 
     def remove_text(self, x, y, weight, height):
