@@ -9,7 +9,6 @@ from PySide2.QtWidgets import *
 
 class EditorWindow(QWidget):
     def __init__(self):
-        # initialize
         super().__init__()
         self.setObjectName("Editor")
         self.resize(1345, 859)
@@ -36,7 +35,6 @@ class EditorWindow(QWidget):
         brush = QBrush(QColor(240, 240, 240))
         brush.setStyle(Qt.SolidPattern)
         self.gv.setBackgroundBrush(brush)
-        # self.gv.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignTop)
         self.gv.setAlignment(Qt.AlignCenter)
         self.gv.setObjectName("gv")
         self.vbox1.addWidget(self.gv)

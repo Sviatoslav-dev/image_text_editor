@@ -91,7 +91,6 @@ class Start(QWidget):
             self.hide()
             if file_path.endswith(('.jpg', '.jpeg', '.png', '.bmp')):
                 window = ImageEditor()
-                # window.show()
                 ImageController(
                     window,
                     file_path,
