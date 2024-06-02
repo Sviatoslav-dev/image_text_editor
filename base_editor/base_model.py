@@ -15,10 +15,9 @@ class BaseImageModel:
     def __init__(self):
         self.pipeline = keras_ocr.pipeline.Pipeline()
 
-        BASEDIR = "."
-        MODEL_DIR = os.path.join(BASEDIR, "./font_predictions/saved_models")
+        model_dir = os.path.join(".", "./font_predictions/saved_models")
 
-        model_name = os.path.join(MODEL_DIR, "font.model.02.keras")
+        model_name = os.path.join(model_dir, "font.model.02.keras")
         self.fonts_model = load_model(model_name)
 
     def _polygon_to_box(self, polygon):

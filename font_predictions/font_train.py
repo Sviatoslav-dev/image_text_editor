@@ -18,10 +18,10 @@ from font_predictions.fonts import fonts
 seed = 128
 np.random.seed(seed)
 
-MODEL_DIR = "saved_models"
-model_name = os.path.join(MODEL_DIR, "font.model.02.keras")
+model_dir = "saved_models"
+model_name = os.path.join("saved_models", "font.model.02.keras")
 
-Path(MODEL_DIR).mkdir(parents=True, exist_ok=True)
+Path(model_dir).mkdir(parents=True, exist_ok=True)
 
 image_size = 50
 pixel_depth = 255.0
