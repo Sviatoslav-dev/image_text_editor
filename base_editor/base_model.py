@@ -4,9 +4,11 @@ import random
 import cv2
 import keras_ocr
 import numpy as np
+import requests
 from PIL import ImageFont, Image, ImageDraw
-from googletrans import Translator
 from keras.models import load_model
+
+from font_predictions.fonts import fonts
 
 
 class BaseImageModel:
@@ -14,11 +16,10 @@ class BaseImageModel:
         self.pipeline = keras_ocr.pipeline.Pipeline()
 
         BASEDIR = "."
-        MODEL_DIR = os.path.join(BASEDIR, "font_predictions/saved_models")
+        MODEL_DIR = os.path.join(BASEDIR, "./font_predictions/saved_models")
 
         model_name = os.path.join(MODEL_DIR, "font.model.02.keras")
         self.fonts_model = load_model(model_name)
-        self.translator = Translator()
 
     def _polygon_to_box(self, polygon):
         min_x, min_y = float('inf'), float('inf')
@@ -35,10 +36,10 @@ class BaseImageModel:
 
         for prediction in prediction_groups[0]:
             box = prediction[1]
-            min_x = min(min_x, min([coordinate[0] for coordinate in box]))
-            min_y = min(min_y, min([coordinate[1] for coordinate in box]))
-            max_x = max(max_x, max([coordinate[0] for coordinate in box]))
-            max_y = max(max_y, max([coordinate[1] for coordinate in box]))
+            min_x = min(min_x, min([coordinate[0] for coordinate in box])) - 5
+            min_y = min(min_y, min([coordinate[1] for coordinate in box])) - 5
+            max_x = max(max_x, max([coordinate[0] for coordinate in box])) + 5
+            max_y = max(max_y, max([coordinate[1] for coordinate in box])) + 5
 
         overall_box = [(min_x, min_y), (max_x, min_y), (max_x, max_y), (min_x, max_y)]
         return np.array(overall_box)
@@ -60,23 +61,6 @@ class BaseImageModel:
     def find_text(self, image):
         predictions = self.pipeline.recognize([image])
         return predictions, self._unite_predictions(predictions)
-        # data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
-        #
-        # predictions = []
-        # for i in range(len(data['level'])):
-        #     text = data['text'][i].strip()
-        #     if text:
-        #         x, y, w, h = data['left'][i], data['top'][i], data['width'][i], data['height'][
-        #             i]
-        #         box = [
-        #             [x, y],
-        #             [x + w, y],
-        #             [x + w, y + h],
-        #             [x, y + h]
-        #         ]
-        #         predictions.append([text, np.array(box)])
-        #
-        # return [predictions], self._unite_predictions([predictions])
 
     def calculate_box_height(self, box):
         points = np.array(box)
@@ -106,7 +90,7 @@ class BaseImageModel:
             resized_image = resized_image[:, start:start + 50]
         prediction = self.fonts_model.predict(np.array([resized_image]))[0]
         font_num = np.argmax(prediction)
-        return "timesnewromanpsmt"#fonts[int(font_num)]
+        return fonts[int(font_num)]
 
     def get_mean_color(self, image):
         gray_region = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -120,13 +104,10 @@ class BaseImageModel:
         thresh_type = cv2.THRESH_BINARY_INV if optimal_threshold < 128 else cv2.THRESH_BINARY
         _, mask = cv2.threshold(gray_region, optimal_threshold, 255, thresh_type | cv2.THRESH_OTSU)
 
-        mask_inv = cv2.bitwise_not(mask)
-        text_pixels = cv2.bitwise_and(image, image, mask=mask_inv)
-        mean_color = cv2.mean(text_pixels, mask=mask_inv)[:3]
-        cv2.imshow('Text Region', text_pixels)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-        # mean_color = self.find_dominant_color(image, mask=mask_inv)
+        if optimal_threshold < np.mean(gray_region[0]):
+            mask = cv2.bitwise_not(mask)
+        text_pixels = cv2.bitwise_and(image, image, mask=mask)
+        mean_color = cv2.mean(text_pixels, mask=mask)[:3]
         return int(mean_color[0]), int(mean_color[1]), int(mean_color[2])
 
     def clear_text(self, image, prediction):
@@ -139,15 +120,6 @@ class BaseImageModel:
         return image
 
     def draw_text(self, image, text, x, y, h, color=(255, 255, 255), font="Arial"):
-        # print("xy", x, y)
-        # print("h = ", h)
-        # thickness = 2
-        # text_scale = cv2.getFontScaleFromHeight(cv2.FONT_HERSHEY_SIMPLEX, h, thickness)
-        # return cv2.putText(
-        #     image, text, (int(x) + 5, int(y) - 5), cv2.FONT_HERSHEY_SIMPLEX,
-        #     text_scale, (255, 255, 255), thickness, cv2.LINE_AA,
-        # )
-
         print(text, x, y, h, color, font)
         fontpath = f"data/fonts/{font}.ttf"
         font = ImageFont.truetype(fontpath, int(h * 1.3))
@@ -157,7 +129,6 @@ class BaseImageModel:
         ascent, descent = font.getmetrics()
         text_bbox = draw.textbbox((0, 0), text, font=font)
         text_width = text_bbox[2] - text_bbox[0]
-        # text_height = text_bbox[3] - text_bbox[1]
         text_height = ascent - descent
         text_height *= 1.5
 
@@ -191,3 +162,20 @@ class BaseImageModel:
         y_mid = int((y1 + y2) / 2)
         return x_mid, y_mid
 
+    def translate_deepl(self, text, source_lang="en", target_lang='uk'):
+        api_key = '5d781a78-1aef-4f04-be1d-ba831c57c183:fx'
+        url = 'https://api-free.deepl.com/v2/translate'
+
+        params = {
+            'auth_key': api_key,
+            'text': text,
+            'source_lang': source_lang,
+            'target_lang': target_lang
+        }
+
+        response = requests.post(url, data=params)
+
+        if response.status_code == 200:
+            return response.json()['translations'][0]['text']
+        else:
+            raise Exception(f"Error: {response.status_code}, {response.text}")

@@ -4,7 +4,7 @@ from PySide2 import QtCore, QtWidgets
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QAction, QSlider, QLabel, QHBoxLayout, QVBoxLayout
 
-from editor_window import EditorWindow
+from base_editor.editor_window import EditorWindow
 from video_controller import VideoController
 from video_scene import VideoScene
 
@@ -31,14 +31,10 @@ class VideoPlayer(EditorWindow):
         self.gv.setScene(self.scene)
         self.scene.rect = self.scene.addRect(0, 0, 0, 0)
 
-        # self.quit_button = QtWidgets.QPushButton("Quit")
         self.time_code_label = QLabel("00:00:00", self)
         self.play_pause_button = QtWidgets.QPushButton("Pause")
-        # self.camera_video_button = QtWidgets.QPushButton("Switch to video")
 
         self.video_layout = QtWidgets.QGridLayout()
-        # self.video_layout.addWidget(self.gv, 0, 0, 1, 2)
-        # self.video_layout.addWidget(self.slider, 3, 0)
 
         self.setup_ui()
 
@@ -81,14 +77,6 @@ class VideoPlayer(EditorWindow):
         self.toolbar.addAction(self.close_file_action)
 
     def setup_ui(self):
-        # self.video_layout.addWidget(self.time_code_label, 0, 2, 1, 1, Qt.AlignRight)
-        # self.video_layout.addWidget(self.play_pause_button, 0, 1, 1, 1, Qt.AlignCenter)
-        # # self.video_layout.addWidget(self.camera_video_button, 1, 0, 1, 1)
-        # # self.main_layout.addWidget(self.quit_button, 2, 0, 1, 2)
-        #
-        # # self.setLayout(self.video_layout)
-        # self.vbox1.addLayout(self.video_layout)
-
         self.control_h_layout = QHBoxLayout()
 
         self.control_v_layout = QVBoxLayout()
@@ -106,7 +94,6 @@ class VideoPlayer(EditorWindow):
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     player = VideoPlayer()
-    # player.show()
     VideoController(player, "data/video_with_text8.mp4")
     player.show()
     sys.exit(app.exec_())

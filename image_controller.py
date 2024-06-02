@@ -4,7 +4,7 @@ import numpy as np
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
-from base_controller import BaseController
+from base_editor.base_controller import BaseController
 from image_actions import ImageAction
 from image_editor import ImageEditor
 from image_model import ImageModel
@@ -81,12 +81,6 @@ class ImageController(BaseController):
         top_line_edit = CustomTextEdit(parent=dialog)
         dialog_layout.addWidget(top_line_edit)
 
-        # def on_enter():
-        #     nonlocal text
-        #     text = top_line_edit.text()
-        #     dialog.done(1)
-
-        # top_line_edit.editingFinished.connect(on_enter)
         dialog.setLayout(dialog_layout)
         dialog.exec_()
         text = top_line_edit.toPlainText()

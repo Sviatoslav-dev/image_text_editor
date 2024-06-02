@@ -3,7 +3,7 @@ import qimage2ndarray
 from PySide2 import QtGui, QtCore
 from PySide2.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QFileDialog
 
-from base_controller import BaseController
+from base_editor.base_controller import BaseController
 from translation_dialog import TranslationDialog
 from video_actions import VideoAction
 from video_model import VideoModel
@@ -98,7 +98,6 @@ class VideoController(BaseController):
         else:
             self.window.frame_timer.start(int(1000 // self.model.fps))
             self.window.play_pause_button.setText("Pause")
-            # self.video_capture.set(cv2.CAP_PROP_POS_AVI_RATIO, 0.1)
 
         self.pause = not self.pause
         self.scene.pause = self.pause
@@ -144,7 +143,6 @@ class VideoController(BaseController):
         success = self.model.replace_text(text, *self._resize_rect())
         if not success:
             self.show_not_found_message()
-        # self.video_model.replace_text_revert(text, *self._resize_rect())
 
         self.show_frame(self.model.get_current_frame())
 

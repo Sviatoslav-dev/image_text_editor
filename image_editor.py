@@ -2,25 +2,16 @@ import sys
 
 from PySide2.QtWidgets import *
 
-from editor_window import EditorWindow
+from base_editor.editor_window import EditorWindow
 from image_scene import ImageScene
 
 
 class ImageEditor(EditorWindow):
     def __init__(self):
-        # initialize
         super().__init__()
-        # self.img = QPixmap(
-        #     qimage2ndarray.array2qimage(cv2.cvtColor(self.img_class.img, cv2.COLOR_BGR2RGB)))
-
-        # self.gv = self.findChild(QGraphicsView, "gv")
-        # self.scene = QGraphicsScene()
         pixmap_item = QGraphicsPixmapItem()
         self.scene = ImageScene(pixmap_item=pixmap_item)
-        # self.scene.mouseReleaseEvent
         self.scene.addItem(pixmap_item)
-        # pixmap_item.setPixmap(self.img)
-        # self.scene_img = self.scene.addPixmap(self.img)
         self.scene.rect = self.scene.addRect(0, 0, 0, 0)
         self.gv.setScene(self.scene)
 
@@ -62,9 +53,6 @@ class ImageEditor(EditorWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    # window = Start()
-    # window = Main(["C:/Users/slavi/PycharmProjects/image_text_editor/ui/landscape.jpg"])
-    # window = Main(["C:/Users/slavi/PycharmProjects/image_text_editor/ui/landscape.jpg"])
     window = ImageEditor()
     window.show()
     app.exec_()

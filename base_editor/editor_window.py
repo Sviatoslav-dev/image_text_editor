@@ -95,9 +95,6 @@ class EditorWindow(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    # window = Start()
-    # window = Main(["C:/Users/slavi/PycharmProjects/image_text_editor/ui/landscape.jpg"])
-    # window = Main(["C:/Users/slavi/PycharmProjects/image_text_editor/ui/landscape.jpg"])
     window = EditorWindow()
     window.show()
     app.exec_()

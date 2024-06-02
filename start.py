@@ -14,7 +14,6 @@ from video_editor import VideoPlayer
 class Start(QWidget):
     def __init__(self):
         super().__init__()
-        # loadUi(f"{pathlib.Path(__file__).parent.absolute()}\\ui\\startup.ui", self)
         self.setObjectName("Editor")
         self.resize(720, 400)
         self.setMouseTracking(False)
@@ -65,7 +64,6 @@ class Start(QWidget):
         self.verticalLayout_2.addLayout(self.vbox)
 
         self.retranslateUi()
-        # self.QMetaObject.connectSlotsByName(self)
 
         self.setWindowIcon(
             QIcon("C:/Users/slavi/PycharmProjects/image_text_editor/data/icon/icon.png"))
@@ -98,15 +96,12 @@ class Start(QWidget):
                     window,
                     file_path,
                     self,
-                    # "data/img_7.png",
                 )
             elif file_path.endswith(('.avi', '.mp4', '.mov', '.mkv')):
                 player = VideoPlayer()
-                # player.show()
                 VideoController(
                     player,
                     file_path,
-                    # "data/wideo_with_text.mp4",
                     self,
                 )
                 player.show()

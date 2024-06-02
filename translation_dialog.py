@@ -1,4 +1,5 @@
-from PySide2.QtWidgets import QVBoxLayout, QDialog, QPushButton
+from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QVBoxLayout, QDialog, QPushButton, QComboBox, QHBoxLayout, QLabel
 
 
 class TranslationDialog(QDialog):
@@ -6,26 +7,45 @@ class TranslationDialog(QDialog):
         super().__init__()
         self.initUI()
         self.selected_option = None
+        self.setWindowTitle("Select languages")
+
+    @property
+    def languages_map(self):
+        return {
+            "English": "en",
+            "Ukrainian": "uk",
+        }
 
     def initUI(self):
-        layout = QVBoxLayout()
+        main_layout = QVBoxLayout()
 
-        btn_eng_to_ukr = QPushButton("English to Ukrainian", self)
-        btn_eng_to_ukr.clicked.connect(self.select_eng_to_ukr)
+        title_label = QLabel("Select Languages", self)
+        title_label.setAlignment(Qt.AlignCenter)
 
-        btn_ukr_to_eng = QPushButton("Ukrainian to English", self)
-        btn_ukr_to_eng.clicked.connect(self.select_ukr_to_eng)
+        combo_layout = QHBoxLayout()
 
-        layout.addWidget(btn_eng_to_ukr)
-        layout.addWidget(btn_ukr_to_eng)
-        self.setLayout(layout)
+        self.combo_from = QComboBox(self)
+        self.combo_from.addItems(["English", "Ukrainian"])
 
-        self.setWindowTitle("Select Translation Direction")
+        self.label_to = QLabel("to", self)
 
-    def select_eng_to_ukr(self):
-        self.selected_option = ("en", "uk")
-        self.accept()
+        self.combo_to = QComboBox(self)
+        self.combo_to.addItems(["Ukrainian", "English"])
 
-    def select_ukr_to_eng(self):
-        self.selected_option = ("uk", "en")
+        self.btn_select = QPushButton("Select", self)
+        self.btn_select.clicked.connect(self.select_languages)
+
+        combo_layout.addWidget(self.combo_from)
+        combo_layout.addWidget(self.label_to)
+        combo_layout.addWidget(self.combo_to)
+
+        main_layout.addWidget(title_label)
+        main_layout.addLayout(combo_layout)
+        main_layout.addWidget(self.btn_select)
+        self.setLayout(main_layout)
+
+    def select_languages(self):
+        from_lang = self.combo_from.currentText()
+        to_lang = self.combo_to.currentText()
+        self.selected_option = (self.languages_map[from_lang], self.languages_map[to_lang])
         self.accept()
