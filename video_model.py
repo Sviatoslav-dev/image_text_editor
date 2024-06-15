@@ -49,13 +49,14 @@ class VideoModel(BaseImageModel):
         text_height = self.get_box_height(predictions[0][0])
 
         start_box = self._polygon_to_box(united_groups)
-        b = (start_box[3] - start_box[1]) * 0.05
-        print("bb: ", b)
+        b1 = start_box[2] * 0.02
+        b2 = start_box[3] * 0.02
+        print("bb: ", b1)
         start_box = (
-            x + start_box[0] - b,
-            y + start_box[1] - b,
-            start_box[2] + b,
-            start_box[3] + b,
+            x + start_box[0] - b1,
+            y + start_box[1] - b2,
+            start_box[2] + b1 * 2,
+            start_box[3] + b2 * 2,
         )
         tracker = cv2.legacy.TrackerCSRT_create()
         tracker.init(current_frame, start_box)
@@ -66,6 +67,7 @@ class VideoModel(BaseImageModel):
             print("current_frame: ", current_frame_num)
             current_frame = self.frames[current_frame_num]
             success, box = tracker.update(current_frame)
+            box = (box[0] - b1, box[1] - b2, box[2] + b1 * 2, box[3] + b2 * 2)
 
             if not success:
                 break
@@ -96,6 +98,7 @@ class VideoModel(BaseImageModel):
             print("current_frame: ", current_frame_num)
             current_frame = self.frames[current_frame_num]
             success, box = tracker.update(current_frame)
+            box = (box[0] - b1, box[1] - b2, box[2] + b1 * 2, box[3] + b2 * 2)
 
             if not success:
                 break

@@ -19,7 +19,7 @@ seed = 128
 np.random.seed(seed)
 
 model_dir = "saved_models"
-model_name = os.path.join("saved_models", "font.model.02.keras")
+model_name = os.path.join("saved_models", "font.model.03.keras")
 
 Path(model_dir).mkdir(parents=True, exist_ok=True)
 
@@ -103,7 +103,7 @@ print(X_val.shape)
 print(Y_val.shape)
 
 
-epochs = 1
+epochs = 4
 batch_size = 64
 history = model.fit(
     x=repeat(X_train, epochs, axis=0),

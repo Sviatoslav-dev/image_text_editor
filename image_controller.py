@@ -77,6 +77,7 @@ class ImageController(BaseController):
         print(self.scene.rect.rect().width(), self.scene.rect.rect().height())
         text = ""
         dialog = QDialog(self.scene.parent())
+        dialog.setWindowTitle("New text")
         dialog_layout = QVBoxLayout()
         top_line_edit = CustomTextEdit(parent=dialog)
         dialog_layout.addWidget(top_line_edit)

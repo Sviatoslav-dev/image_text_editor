@@ -1,3 +1,4 @@
+import math
 import os
 import random
 
@@ -35,10 +36,10 @@ class BaseImageModel:
 
         for prediction in prediction_groups[0]:
             box = prediction[1]
-            min_x = min(min_x, min([coordinate[0] for coordinate in box])) - 5
-            min_y = min(min_y, min([coordinate[1] for coordinate in box])) - 5
-            max_x = max(max_x, max([coordinate[0] for coordinate in box])) + 5
-            max_y = max(max_y, max([coordinate[1] for coordinate in box])) + 5
+            min_x = min(min_x, min([coordinate[0] for coordinate in box]))
+            min_y = min(min_y, min([coordinate[1] for coordinate in box]))
+            max_x = max(max_x, max([coordinate[0] for coordinate in box]))
+            max_y = max(max_y, max([coordinate[1] for coordinate in box]))
 
         overall_box = [(min_x, min_y), (max_x, min_y), (max_x, max_y), (min_x, max_y)]
         return np.array(overall_box)
@@ -60,6 +61,16 @@ class BaseImageModel:
     def find_text(self, image):
         predictions = self.pipeline.recognize([image])
         return predictions, self._unite_predictions(predictions)
+
+    def get_predictions_corner(self, predictions):
+        angles = []
+
+        for text, box in predictions:
+            angle = np.degrees(np.arctan2(box[1][1] - box[0][1], box[1][0] - box[0][0]))
+            angles.append(angle)
+
+        avg_angle = sum(angles) / len(angles) if angles else 0
+        return avg_angle
 
     def calculate_box_height(self, box):
         points = np.array(box)
@@ -103,7 +114,7 @@ class BaseImageModel:
         thresh_type = cv2.THRESH_BINARY_INV if optimal_threshold < 128 else cv2.THRESH_BINARY
         _, mask = cv2.threshold(gray_region, optimal_threshold, 255, thresh_type | cv2.THRESH_OTSU)
 
-        if optimal_threshold < np.mean(gray_region[0]):
+        if optimal_threshold < (np.mean(gray_region[0]) + np.mean(gray_region[-1])) / 2:
             mask = cv2.bitwise_not(mask)
         text_pixels = cv2.bitwise_and(image, image, mask=mask)
         mean_color = cv2.mean(text_pixels, mask=mask)[:3]
@@ -115,7 +126,7 @@ class BaseImageModel:
         pts = pts.reshape((-1, 1, 2))
         cv2.fillPoly(mask, [pts], 255)
 
-        image = cv2.inpaint(image, mask, 11, cv2.INPAINT_TELEA)
+        image = cv2.inpaint(image, mask, 11, cv2.INPAINT_NS)
         return image
 
     def draw_text(self, image, text, x, y, h, color=(255, 255, 255), font="Arial"):
@@ -138,7 +149,14 @@ class BaseImageModel:
         return np.array(img)
 
     def get_box_height(self, box):
-        return int((box[1][3][1] - box[1][0][1]))  # * 0.8)
+        box = box[1]
+        mid_point1 = box[0]
+        mid_point2 = box[3]
+
+        height = math.sqrt(
+            (mid_point2[0] - mid_point1[0]) ** 2 + (mid_point2[1] - mid_point1[1]) ** 2)
+
+        return height
 
     def _segmentate_text(self, image):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
